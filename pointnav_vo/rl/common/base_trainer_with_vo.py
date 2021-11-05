@@ -19,6 +19,10 @@ from pointnav_vo.utils.tensorboard_utils import TensorboardWriter
 from pointnav_vo.utils.misc_utils import ResizeCenterCropper, Resizer
 from pointnav_vo.vo.common.common_vars import *
 
+# corruption
+from pointnav_vo.utils.rgb_sensor_degradations import apply_corruption_sequence
+
+
 
 class BaseRLTrainerWithVO(BaseRLTrainer):
     def _set_up_vo_obs_transformer(self) -> None:
@@ -171,6 +175,14 @@ class BaseRLTrainerWithVO(BaseRLTrainer):
     ):
         prev_rgb = prev_obs["rgb"]
         cur_rgb = cur_obs["rgb"]
+
+        # corruption
+        prev_rgb=apply_corruption_sequence(prev_rgb,self.corruptions_sequence,self.severity_sequence)
+        cur_rgb=apply_corruption_sequence(cur_rgb,self.corruptions_sequence,self.severity_sequence)
+
+        # if zero?
+        # prev_rgb = np.zeros_like(prev_rgb)
+        # cur_rgb = np.zeros_like(cur_rgb)
 
         rgb_pair = torch.cat(
             [

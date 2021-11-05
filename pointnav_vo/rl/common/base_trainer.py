@@ -65,6 +65,10 @@ class BaseRLTrainer(BaseTrainer):
         self.config = config
         self._flush_secs = 30
 
+        # Define Corruptions
+        self.corruptions_sequence = config.TASK_CONFIG.SIMULATOR.CORRUPTIONS.CORRUPTIONS_SEQUENCE
+        self.severity_sequence = config.TASK_CONFIG.SIMULATOR.CORRUPTIONS.SEVERITY_SEQUENCE
+
     @property
     def flush_secs(self):
         return self._flush_secs
