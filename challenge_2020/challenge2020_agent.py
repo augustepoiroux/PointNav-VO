@@ -30,6 +30,7 @@ from pointnav_vo.utils.geometry_utils import (
     NormalizedDepth2TopDownViewHabitat,
 )
 from pointnav_vo.vo.common.common_vars import *
+from rgb_sensor_degradations import apply_corruption_sequence
 
 
 @numba.njit
@@ -106,6 +107,10 @@ class PointNavAgent(Agent):
         self.act_cnt = 0
         self.init_flag = True
         self.call_stop = False
+
+        # Define Corruptions
+        self.corruptions_sequence = config.TASK_CONFIG.SIMULATOR.CORRUPTIONS.CORRUPTIONS_SEQUENCE
+        self.severity_sequence = config.TASK_CONFIG.SIMULATOR.CORRUPTIONS.SEVERITY_SEQUENCE
 
     def _set_up_nav_obs_transformer(self) -> None:
 
@@ -311,6 +316,11 @@ class PointNavAgent(Agent):
     def _compute_local_delta_states_from_vo(self, prev_obs, cur_obs, act):
         prev_rgb = prev_obs["rgb"]
         cur_rgb = cur_obs["rgb"]
+
+        #Apply Corruptions
+        prev_rgb=apply_corruption_sequence(prev_rgb,self.corruptions_sequence,self.severity_sequence)
+        cur_rgb=apply_corruption_sequence(cur_rgb,self.corruptions_sequence,self.severity_sequence)
+
         # [1, vis_size, vis_size, 6]
         rgb_pair = (
             torch.FloatTensor(np.concatenate([prev_rgb, cur_rgb], axis=2))
