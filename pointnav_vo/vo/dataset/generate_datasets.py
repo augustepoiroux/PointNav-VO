@@ -18,6 +18,9 @@ from pointnav_vo.utils.geometry_utils import (
 )
 from pointnav_vo.utils.misc_utils import ResizeCenterCropper, Resizer
 
+# corruption
+from pointnav_vo.utils.rgb_sensor_degradations import apply_corruption_sequence
+
 
 LOG_INTERVAL = 50
 
@@ -142,39 +145,61 @@ def save_data_to_disk(group, all_data):
         delta_rotations,
     ) = all_data
 
-    group.create_dataset("new_episodes", data=new_episodes, **H5PY_COMPRESS_KWARGS)
+    group.create_dataset(
+        "new_episodes", data=new_episodes, **H5PY_COMPRESS_KWARGS
+    )
     group.create_dataset("actions", data=actions, **H5PY_COMPRESS_KWARGS)
     group.create_dataset("collisions", data=collisions, **H5PY_COMPRESS_KWARGS)
     group.create_dataset(
-        "episode_start_positions", data=episode_start_positions, **H5PY_COMPRESS_KWARGS
+        "episode_start_positions",
+        data=episode_start_positions,
+        **H5PY_COMPRESS_KWARGS,
     )
     group.create_dataset(
-        "episode_start_rotations", data=episode_start_rotations, **H5PY_COMPRESS_KWARGS
+        "episode_start_rotations",
+        data=episode_start_rotations,
+        **H5PY_COMPRESS_KWARGS,
     )
     group.create_dataset(
-        "episode_goal_positions", data=episode_goal_positions, **H5PY_COMPRESS_KWARGS
+        "episode_goal_positions",
+        data=episode_goal_positions,
+        **H5PY_COMPRESS_KWARGS,
     )
 
-    group.create_dataset("prev_rgbs", data=prev_rgbs, **H5PY_COMPRESS_KWARGS_RGB)
-    group.create_dataset("prev_depths", data=prev_depths, **H5PY_COMPRESS_KWARGS_DEPTH)
     group.create_dataset(
-        "prev_point_goal_vecs", data=prev_point_goal_vecs, **H5PY_COMPRESS_KWARGS
+        "prev_rgbs", data=prev_rgbs, **H5PY_COMPRESS_KWARGS_RGB
+    )
+    group.create_dataset(
+        "prev_depths", data=prev_depths, **H5PY_COMPRESS_KWARGS_DEPTH
+    )
+    group.create_dataset(
+        "prev_point_goal_vecs",
+        data=prev_point_goal_vecs,
+        **H5PY_COMPRESS_KWARGS,
     )
     group.create_dataset(
         "prev_episodic_gpses", data=prev_episodic_gpses, **H5PY_COMPRESS_KWARGS
     )
     group.create_dataset(
-        "prev_episodic_compasses", data=prev_episodic_compasses, **H5PY_COMPRESS_KWARGS
+        "prev_episodic_compasses",
+        data=prev_episodic_compasses,
+        **H5PY_COMPRESS_KWARGS,
     )
     group.create_dataset(
-        "prev_global_positions", data=prev_global_positions, **H5PY_COMPRESS_KWARGS
+        "prev_global_positions",
+        data=prev_global_positions,
+        **H5PY_COMPRESS_KWARGS,
     )
     group.create_dataset(
-        "prev_global_rotations", data=prev_global_rotations, **H5PY_COMPRESS_KWARGS
+        "prev_global_rotations",
+        data=prev_global_rotations,
+        **H5PY_COMPRESS_KWARGS,
     )
 
     group.create_dataset("cur_rgbs", data=cur_rgbs, **H5PY_COMPRESS_KWARGS_RGB)
-    group.create_dataset("cur_depths", data=cur_depths, **H5PY_COMPRESS_KWARGS_DEPTH)
+    group.create_dataset(
+        "cur_depths", data=cur_depths, **H5PY_COMPRESS_KWARGS_DEPTH
+    )
     group.create_dataset(
         "cur_point_goal_vecs", data=cur_point_goal_vecs, **H5PY_COMPRESS_KWARGS
     )
@@ -182,13 +207,19 @@ def save_data_to_disk(group, all_data):
         "cur_episodic_gpses", data=cur_episodic_gpses, **H5PY_COMPRESS_KWARGS
     )
     group.create_dataset(
-        "cur_episodic_compasses", data=cur_episodic_compasses, **H5PY_COMPRESS_KWARGS
+        "cur_episodic_compasses",
+        data=cur_episodic_compasses,
+        **H5PY_COMPRESS_KWARGS,
     )
     group.create_dataset(
-        "cur_global_positions", data=cur_global_positions, **H5PY_COMPRESS_KWARGS
+        "cur_global_positions",
+        data=cur_global_positions,
+        **H5PY_COMPRESS_KWARGS,
     )
     group.create_dataset(
-        "cur_global_rotations", data=cur_global_rotations, **H5PY_COMPRESS_KWARGS
+        "cur_global_rotations",
+        data=cur_global_rotations,
+        **H5PY_COMPRESS_KWARGS,
     )
 
     group.create_dataset(
@@ -208,6 +239,8 @@ def generate_one_dataset(
     rnd_p,
     save_f,
     obs_transformer=None,
+    corruptions_sequence=[],
+    severity_sequence=[],
 ):
 
     print_config_flag = True
@@ -247,7 +280,7 @@ def generate_one_dataset(
                 create_new_chunk = 0
                 chunk_data_cnt = 0
 
-                # save previsou chunk
+                # save previous chunk
                 if cnt != 0:
                     group = f.create_group(f"chunk_{chunk_cnt}")
                     chunk_cnt += 1
@@ -291,7 +324,9 @@ def generate_one_dataset(
                     cur_point_goal_vecs = np.array(
                         cur_point_goal_vecs, dtype=np.float16
                     )
-                    cur_episodic_gpses = np.array(cur_episodic_gpses, dtype=np.float16)
+                    cur_episodic_gpses = np.array(
+                        cur_episodic_gpses, dtype=np.float16
+                    )
                     cur_episodic_compasses = np.array(
                         cur_episodic_compasses, dtype=np.float16
                     )
@@ -302,8 +337,12 @@ def generate_one_dataset(
                         cur_global_rotations, dtype=np.float16
                     )
 
-                    delta_positions = np.array(delta_positions, dtype=np.float16)
-                    delta_rotations = np.array(delta_rotations, dtype=np.float16)
+                    delta_positions = np.array(
+                        delta_positions, dtype=np.float16
+                    )
+                    delta_rotations = np.array(
+                        delta_rotations, dtype=np.float16
+                    )
 
                     print(f"... done ({time.time() - tmp_start:.2f}s)")
 
@@ -471,10 +510,20 @@ def generate_one_dataset(
                 assert cur_rgb.shape == (VIS_SIZE_H, VIS_SIZE_W, 3)
                 assert cur_depth.shape == (VIS_SIZE_H, VIS_SIZE_W, 1)
 
+                # corruption
+                prev_rgb = apply_corruption_sequence(
+                    prev_rgb, corruptions_sequence, severity_sequence
+                )
+                cur_rgb = apply_corruption_sequence(
+                    cur_rgb, corruptions_sequence, severity_sequence
+                )
+
                 # all previous information
                 prev_rgbs.append(prev_rgb.reshape(-1))
                 prev_depths.append(prev_depth.reshape(-1))
-                prev_point_goal_vecs.append(prev_obs["pointgoal_with_gps_compass"])
+                prev_point_goal_vecs.append(
+                    prev_obs["pointgoal_with_gps_compass"]
+                )
                 prev_episodic_gpses.append(prev_obs["gps"])
                 prev_episodic_compasses.append(prev_obs["compass"])
                 prev_global_positions.append(prev_agent_state.position)
@@ -489,7 +538,9 @@ def generate_one_dataset(
                 # all current information
                 cur_rgbs.append(cur_rgb.reshape(-1))
                 cur_depths.append(cur_depth.reshape(-1))
-                cur_point_goal_vecs.append(cur_obs["pointgoal_with_gps_compass"])
+                cur_point_goal_vecs.append(
+                    cur_obs["pointgoal_with_gps_compass"]
+                )
                 cur_episodic_gpses.append(cur_obs["gps"])
                 cur_episodic_compasses.append(cur_obs["compass"])
                 cur_global_positions.append(cur_agent_state.position)
@@ -521,13 +572,17 @@ def generate_datasets(
     train_scene_list,
     val_scene_list,
     obs_transformer=None,
+    corruptions_sequence=[],
+    severity_sequence=[],
 ):
 
     for name, N in N_dict.items():
         save_f = os.path.join(save_dir, f"{name}_{N_dict[name]}.h5")
-        if name == "train":
+        if name.startswith("train"):
+            name = "train"
             scene_list = train_scene_list
-        elif name == "val":
+        elif name.startswith("val"):
+            name = "val"
             scene_list = val_scene_list
         else:
             raise ValueError
@@ -547,6 +602,8 @@ def generate_datasets(
             rnd_p,
             save_f,
             obs_transformer=obs_transformer,
+            corruptions_sequence=corruptions_sequence,
+            severity_sequence=severity_sequence,
         )
         print("\n...done.\n")
 
@@ -564,7 +621,10 @@ def main():
         "--config_f", type=str, required=True, help="path to config file",
     )
     parser.add_argument(
-        "--save_dir", type=str, required=True, help="directory for saving datasets",
+        "--save_dir",
+        type=str,
+        required=True,
+        help="directory for saving datasets",
     )
     parser.add_argument(
         "--act_type",
@@ -591,7 +651,6 @@ def main():
         nargs="+",
         type=str,
         required=True,
-        choices=["train", "val"],
         help="A list of str to specify the name of each dataset.",
     )
     parser.add_argument(
@@ -610,16 +669,38 @@ def main():
         help="Paht to file containing episode information of scenes for validation.",
     )
     parser.add_argument(
-        "--vis_size_w", type=int, required=True, help="Width of the observation."
+        "--vis_size_w",
+        type=int,
+        required=True,
+        help="Width of the observation.",
     )
     parser.add_argument(
-        "--vis_size_h", type=int, required=True, help="Height of the observation."
+        "--vis_size_h",
+        type=int,
+        required=True,
+        help="Height of the observation.",
     )
     parser.add_argument(
         "--obs_transform",
         type=str,
         required=True,
         help="Which observation transformer to use.",
+    )
+    parser.add_argument(
+        "--corr_seq",
+        type=str,
+        nargs="*",
+        required=False,
+        default=[],
+        help="Which corruptions to apply.",
+    )
+    parser.add_argument(
+        "--sev_seq",
+        type=int,
+        nargs="*",
+        required=False,
+        default=[],
+        help="Which severity to use for each corruption given in corruption sequence argument.",
     )
 
     args = parser.parse_args()
@@ -631,11 +712,15 @@ def main():
     os.makedirs(args.save_dir, exist_ok=True)
 
     # get scene list for train, default train has content folder
-    train_scene_list = list(glob.glob(os.path.join(args.train_scene_dir, "*.json.gz")))
+    train_scene_list = list(
+        glob.glob(os.path.join(args.train_scene_dir, "*.json.gz"))
+    )
     train_scene_list = sorted(
         [os.path.basename(_).split(".")[0] for _ in train_scene_list]
     )
-    print(f"\nFind {len(train_scene_list)} scenes for training: {train_scene_list}.")
+    print(
+        f"\nFind {len(train_scene_list)} scenes for training: {train_scene_list}."
+    )
 
     if args.data_version == "v1":
         # get scene list for validation, default validation does not have content folder
@@ -650,20 +735,26 @@ def main():
                 val_scene_list.append(scene_name)
         val_scene_list = sorted(val_scene_list)
     elif args.data_version == "v2":
-        val_scene_list = list(glob.glob(os.path.join(args.val_scene_dir, "*.json.gz")))
+        val_scene_list = list(
+            glob.glob(os.path.join(args.val_scene_dir, "*.json.gz"))
+        )
         val_scene_list = sorted(
             [os.path.basename(_).split(".")[0] for _ in val_scene_list]
         )
     else:
         raise ValueError
-    print(f"\nFind {len(val_scene_list)} scenes for validation: {val_scene_list}.")
+    print(
+        f"\nFind {len(val_scene_list)} scenes for validation: {val_scene_list}."
+    )
 
     if args.obs_transform == "resize_crop":
         obs_transformer = ResizeCenterCropper(
             size=(VIS_SIZE_W, VIS_SIZE_H), channels_last=True
         )
     elif args.obs_transform == "resize":
-        obs_transformer = Resizer(size=(VIS_SIZE_W, VIS_SIZE_H), channels_last=True)
+        obs_transformer = Resizer(
+            size=(VIS_SIZE_W, VIS_SIZE_H), channels_last=True
+        )
     else:
         obs_transformer = None
 
@@ -680,6 +771,8 @@ def main():
         train_scene_list,
         val_scene_list,
         obs_transformer=obs_transformer,
+        corruptions_sequence=args.corr_seq,
+        severity_sequence=args.sev_seq,
     )
 
 

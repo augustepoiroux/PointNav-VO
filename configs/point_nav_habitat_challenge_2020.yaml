@@ -14,7 +14,7 @@ SIMULATOR:
   HABITAT_SIM_V0:
     GPU_DEVICE_ID: 0
     ALLOW_SLIDING: False
-    
+
   RGB_SENSOR:
     # WIDTH: 640
     # HEIGHT: 360
@@ -45,8 +45,8 @@ SIMULATOR:
 
   CORRUPTIONS:
     CORRUPTIONS_SEQUENCE: ["Defocus Blur","Spatter"]
-    SEVERITY_SEQUENCE: [1,1]
-    
+    SEVERITY_SEQUENCE: [5,5]
+
 TASK:
   TYPE: Nav-v0
   SUCCESS_DISTANCE: 0.36 # 2 x Agent Radius

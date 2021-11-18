@@ -11,6 +11,7 @@
 ## Visual Odometry Training
 
 First set the working path as
+
 ```bash
 cd /path/to/this/repo
 export POINTNAV_VO_ROOT=$PWD
@@ -18,13 +19,13 @@ export POINTNAV_VO_ROOT=$PWD
 
 ### Dataset Generation
 
-We need to generate dataset for training visual odometry model. Please make sure your disk space is enough for the generated data. With 1 million data entries, it takes about **460 GB**. 
+We need to generate dataset for training visual odometry model. Please make sure your disk space is enough for the generated data. With 1 million data entries, it takes about **460 GB**.
 
 ```bash
 cd ${POINTNAV_VO_ROOT}
 
 export PYTHONPATH=${POINTNAV_VO_ROOT}:$PYTHONPATH && \
-python ${POINTNAV_VO_ROOT}/pointnav_vo/vo/dataset/generate_datasets.py \
+python3 ${POINTNAV_VO_ROOT}/pointnav_vo/vo/dataset/generate_datasets.py \
 --config_f ${POINTNAV_VO_ROOT}/configs/point_nav_habitat_challenge_2020.yaml \
 --train_scene_dir ./dataset/habitat_datasets/pointnav/gibson/v2/train/content  \
 --val_scene_dir ./dataset/habitat_datasets/pointnav/gibson/v2/val/content \
@@ -35,26 +36,28 @@ python ${POINTNAV_VO_ROOT}/pointnav_vo/vo/dataset/generate_datasets.py \
 --obs_transform none \
 --act_type -1 \
 --rnd_p 1.0 \
---N_list 1000000 \
+--N_list 100 \
+--corr_seq Spatter "Defocus Blur" \
+--sev_seq 1 1 \
 --name_list train
 ```
 
 Argument explanation:
 
-| Argument            | Usage                                                        |
-| :------------------ | :----------------------------------------------------------- |
-| `--config_f`        | Path to environment configuration,                           |
-| `--train_scene_dir` | Path to Gibson train split from Habitat                      |
-| `--val_scene_dir`   | Path to Gibson val split from Habitat                        |
-| `--save_dir`        | Directory for saving generated dataset                       |
-| `--data_version`    | Version of Habitat's Gibson dataset, `v2` for Habitat-Challenge 2020 |
-| `--vis_size_w`      | Width of saved observation                                   |
-| `--vis_size_h`      | Height of saved observation                                  |
-| `--obs_transform`   | Type of observation transformer,  `none` for no transformation |
-| `--act_type`        | Type of actions to be saved, `-1` for saving all actions     |
-| `--rnd_p`           | Bernoulli probability, default is `1.0`, namely saving all steps |
+| Argument            | Usage                                                                    |
+| :------------------ | :----------------------------------------------------------------------- |
+| `--config_f`        | Path to environment configuration,                                       |
+| `--train_scene_dir` | Path to Gibson train split from Habitat                                  |
+| `--val_scene_dir`   | Path to Gibson val split from Habitat                                    |
+| `--save_dir`        | Directory for saving generated dataset                                   |
+| `--data_version`    | Version of Habitat's Gibson dataset, `v2` for Habitat-Challenge 2020     |
+| `--vis_size_w`      | Width of saved observation                                               |
+| `--vis_size_h`      | Height of saved observation                                              |
+| `--obs_transform`   | Type of observation transformer, `none` for no transformation            |
+| `--act_type`        | Type of actions to be saved, `-1` for saving all actions                 |
+| `--rnd_p`           | Bernoulli probability, default is `1.0`, namely saving all steps         |
 | `--N_list`          | Sizes for train and validation dataset. Paper uses `1000000` and `50000` |
-| `--name_list`       | Names for train and validation dataset, default is `train` and `val` |
+| `--name_list`       | Names for train and validation dataset, default is `train` and `val`     |
 
 ### VO Model Training
 
@@ -77,7 +80,6 @@ We find the following training strategy is efficient, you need to modify `./conf
     - `VO.MODEL.pretrained = True`
     - `VO.MODEL.pretrained_ckpt` to saved checkpoints in previous steps.
 
-
 ```bash
 cd ${POINTNAV_VO_ROOT}
 
@@ -95,14 +97,14 @@ python ${POINTNAV_VO_ROOT}/launch.py \
 
 Argument explanation:
 
-| Argument       | Usage                                                        |
-| :------------- | :----------------------------------------------------------- |
-| `--repo-path`  | Specify absolute path to the root of this repo |
-| `--task-type`  | Specify which task, visual odometry or navigation policy? Here is `vo` |
-| `--noise`      | Specify whether data contains noises in RGB, Depth, or actuation |
-| `--run-type`   | Specify whether it is `train` or `eval`                      |
+| Argument      | Usage                                                                  |
+| :------------ | :--------------------------------------------------------------------- |
+| `--repo-path` | Specify absolute path to the root of this repo                         |
+| `--task-type` | Specify which task, visual odometry or navigation policy? Here is `vo` |
+| `--noise`     | Specify whether data contains noises in RGB, Depth, or actuation       |
+| `--run-type`  | Specify whether it is `train` or `eval`                                |
 
-##  Navigation Policy Training
+## Navigation Policy Training
 
 ```bash
 cd ${POINTNAV_VO_ROOT}
@@ -122,13 +124,13 @@ python ${POINTNAV_VO_ROOT}/launch.py \
 
 Make sure `--nproc_per_node` equals `--n-gpu`. Argument explanation:
 
-| Argument       | Usage                                                        |
-| :------------- | :----------------------------------------------------------- |
-| `--repo-path`  | Specify absolute path to the root of this repo |
-| `--task-type`  | Specify which task, visual odometry or navigation policy? Here is `rl` |
-| `--noise`      | Specify whether data contains noises in RGB, Depth, or actuation |
-| `--run-type`   | Specify whether it is `train` or `eval`                      |
-| `--n-gpu`      | Number of GPUs for distributed training                      |
+| Argument      | Usage                                                                  |
+| :------------ | :--------------------------------------------------------------------- |
+| `--repo-path` | Specify absolute path to the root of this repo                         |
+| `--task-type` | Specify which task, visual odometry or navigation policy? Here is `rl` |
+| `--noise`     | Specify whether data contains noises in RGB, Depth, or actuation       |
+| `--run-type`  | Specify whether it is `train` or `eval`                                |
+| `--n-gpu`     | Number of GPUs for distributed training                                |
 
 ## Integration of Navigation Policy and VO
 
