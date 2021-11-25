@@ -81,7 +81,9 @@ def plasma_fractal(mapsize=32, wibbledecay=3):
     wibble = 100
 
     def wibbledmean(array):
-        return array / 4 + wibble * np.random.uniform(-wibble, wibble, array.shape)
+        return array / 4 + wibble * np.random.uniform(
+            -wibble, wibble, array.shape
+        )
 
     def fillsquares():
         """For each square of points stepsize apart,
@@ -90,7 +92,8 @@ def plasma_fractal(mapsize=32, wibbledecay=3):
         squareaccum = cornerref + np.roll(cornerref, shift=-1, axis=0)
         squareaccum += np.roll(squareaccum, shift=-1, axis=1)
         maparray[
-            stepsize // 2 : mapsize : stepsize, stepsize // 2 : mapsize : stepsize
+            stepsize // 2 : mapsize : stepsize,
+            stepsize // 2 : mapsize : stepsize,
         ] = wibbledmean(squareaccum)
 
     def filldiamonds():
@@ -98,21 +101,22 @@ def plasma_fractal(mapsize=32, wibbledecay=3):
            calculate middle value as mean of points + wibble"""
         mapsize = maparray.shape[0]
         drgrid = maparray[
-            stepsize // 2 : mapsize : stepsize, stepsize // 2 : mapsize : stepsize
+            stepsize // 2 : mapsize : stepsize,
+            stepsize // 2 : mapsize : stepsize,
         ]
         ulgrid = maparray[0:mapsize:stepsize, 0:mapsize:stepsize]
         ldrsum = drgrid + np.roll(drgrid, 1, axis=0)
         lulsum = ulgrid + np.roll(ulgrid, -1, axis=1)
         ltsum = ldrsum + lulsum
-        maparray[0:mapsize:stepsize, stepsize // 2 : mapsize : stepsize] = wibbledmean(
-            ltsum
-        )
+        maparray[
+            0:mapsize:stepsize, stepsize // 2 : mapsize : stepsize
+        ] = wibbledmean(ltsum)
         tdrsum = drgrid + np.roll(drgrid, 1, axis=1)
         tulsum = ulgrid + np.roll(ulgrid, -1, axis=0)
         ttsum = tdrsum + tulsum
-        maparray[stepsize // 2 : mapsize : stepsize, 0:mapsize:stepsize] = wibbledmean(
-            ttsum
-        )
+        maparray[
+            stepsize // 2 : mapsize : stepsize, 0:mapsize:stepsize
+        ] = wibbledmean(ttsum)
 
     while stepsize >= 2:
         fillsquares()
@@ -131,7 +135,9 @@ def clipped_zoom(img, zoom_factor):
 
     top = (h - ch) // 2
     img = scizoom(
-        img[top : top + ch, top : top + ch], (zoom_factor, zoom_factor, 1), order=1
+        img[top : top + ch, top : top + ch],
+        (zoom_factor, zoom_factor, 1),
+        order=1,
     )
     # trim off any extra pixels
     trim_top = (img.shape[0] - h) // 2
@@ -162,7 +168,9 @@ def defocus_blur(x, severity=1):
     channels = []
     for d in range(3):
         channels.append(cv2.filter2D(x[:, :, d], -1, kernel))
-    channels = np.array(channels).transpose((1, 2, 0))  # 3x224x224 -> 224x224x3
+    channels = np.array(channels).transpose(
+        (1, 2, 0)
+    )  # 3x224x224 -> 224x224x3
 
     return np.clip(channels, 0, 1) * 255
 
@@ -177,7 +185,9 @@ def motion_blur(x, severity=1):
 
     x.motion_blur(radius=c[0], sigma=c[1], angle=np.random.uniform(-45, 45))
 
-    x = cv2.imdecode(np.fromstring(x.make_blob(), np.uint8), cv2.IMREAD_UNCHANGED)
+    x = cv2.imdecode(
+        np.fromstring(x.make_blob(), np.uint8), cv2.IMREAD_UNCHANGED
+    )
 
     if x.shape != (224, 224):
         return np.clip(x[..., [2, 1, 0]], 0, 255)  # BGR to RGB
@@ -228,7 +238,10 @@ def spatter(x, severity=1):
         color = cv2.cvtColor(color, cv2.COLOR_BGR2BGRA)
         x = cv2.cvtColor(x, cv2.COLOR_BGR2BGRA)
 
-        return cv2.cvtColor(np.clip(x + m * color, 0, 1), cv2.COLOR_BGRA2BGR) * 255
+        return (
+            cv2.cvtColor(np.clip(x + m * color, 0, 1), cv2.COLOR_BGRA2BGR)
+            * 255
+        )
     else:
         m = np.where(liquid_layer > c[3], 1, 0)
         m = gaussian(m.astype(np.float32), sigma=c[4])
@@ -275,6 +288,8 @@ d["Spatter"] = spatter
 
 
 def apply_corruption(image, corruption, severity):
+    if severity == 0:
+        return image
     corrupt = lambda clean_image: d[corruption](image, severity)
     corrupt_img = np.uint8(corrupt(image))
     return corrupt_img
@@ -282,9 +297,7 @@ def apply_corruption(image, corruption, severity):
 
 def apply_corruption_sequence(frame, corruptions, severities):
     image = Image.fromarray(frame)
-    for i in range(len(corruptions)):
-        corr = corruptions[i]
-        sev = severities[i]
+    for corr, sev in zip(corruptions, severities):
         image = apply_corruption(image, corr, sev)
     return np.array(image)
 

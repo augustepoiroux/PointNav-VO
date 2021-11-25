@@ -136,3 +136,6 @@ dmypy.json
 # Datasets
 dataset/
 pretrained_ckpts/
+
+# Logs
+train_log/

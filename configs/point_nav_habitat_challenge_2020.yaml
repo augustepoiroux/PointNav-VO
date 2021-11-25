@@ -22,7 +22,7 @@ SIMULATOR:
     HEIGHT: 192
     HFOV: 70
     POSITION: [0, 0.88, 0]
-    NOISE_MODEL: "GaussianNoiseModel"
+    NOISE_MODEL: 'GaussianNoiseModel'
     NOISE_MODEL_KWARGS:
       intensity_constant: 0.1
 
@@ -35,17 +35,17 @@ SIMULATOR:
     MIN_DEPTH: 0.1
     MAX_DEPTH: 10.0
     POSITION: [0, 0.88, 0]
-    NOISE_MODEL: "RedwoodDepthNoiseModel"
+    NOISE_MODEL: 'RedwoodDepthNoiseModel'
 
   ACTION_SPACE_CONFIG: 'pyrobotnoisy'
   NOISE_MODEL:
-    ROBOT: "LoCoBot"
+    ROBOT: 'LoCoBot'
     CONTROLLER: 'Proportional'
     NOISE_MULTIPLIER: 0.5
 
   CORRUPTIONS:
-    CORRUPTIONS_SEQUENCE: ["Defocus Blur","Spatter"]
-    SEVERITY_SEQUENCE: [5,5]
+    CORRUPTIONS_SEQUENCE: ['Defocus Blur', 'Spatter']
+    SEVERITY_SEQUENCE: [0, 0]
 
 TASK:
   TYPE: Nav-v0
@@ -53,11 +53,11 @@ TASK:
 
   SENSORS: ['POINTGOAL_WITH_GPS_COMPASS_SENSOR']
   POINTGOAL_WITH_GPS_COMPASS_SENSOR:
-    GOAL_FORMAT: "POLAR"
+    GOAL_FORMAT: 'POLAR'
     DIMENSIONALITY: 2
   GOAL_SENSOR_UUID: pointgoal_with_gps_compass
 
-  MEASUREMENTS: ['DISTANCE_TO_GOAL', "SUCCESS", 'SPL', 'SOFT_SPL']
+  MEASUREMENTS: ['DISTANCE_TO_GOAL', 'SUCCESS', 'SPL', 'SOFT_SPL']
   SUCCESS:
     SUCCESS_DISTANCE: 0.36 # 2 x Agent Radius
 

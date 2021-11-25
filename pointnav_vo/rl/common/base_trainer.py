@@ -66,8 +66,12 @@ class BaseRLTrainer(BaseTrainer):
         self._flush_secs = 30
 
         # Define Corruptions
-        self.corruptions_sequence = config.TASK_CONFIG.SIMULATOR.CORRUPTIONS.CORRUPTIONS_SEQUENCE
-        self.severity_sequence = config.TASK_CONFIG.SIMULATOR.CORRUPTIONS.SEVERITY_SEQUENCE
+        self.corruptions_sequence = (
+            config.TASK_CONFIG.SIMULATOR.CORRUPTIONS.CORRUPTIONS_SEQUENCE
+        )
+        self.severity_sequence = (
+            config.TASK_CONFIG.SIMULATOR.CORRUPTIONS.SEVERITY_SEQUENCE
+        )
 
     @property
     def flush_secs(self):
@@ -113,9 +117,13 @@ class BaseRLTrainer(BaseTrainer):
             else:
                 # evaluate multiple checkpoints in order
                 eval_f_list = list(
-                    glob.glob(os.path.join(self.config.EVAL.EVAL_CKPT_PATH, "*.pth"))
+                    glob.glob(
+                        os.path.join(self.config.EVAL.EVAL_CKPT_PATH, "*.pth")
+                    )
                 )
-                eval_f_list = sorted(eval_f_list, key=lambda x: os.stat(x).st_mtime)
+                eval_f_list = sorted(
+                    eval_f_list, key=lambda x: os.stat(x).st_mtime
+                )
 
             for ckpt_id, current_ckpt in tqdm.tqdm(enumerate(eval_f_list)):
                 logger.info(f"======= current_ckpt: {current_ckpt} =======\n")
@@ -143,7 +151,9 @@ class BaseRLTrainer(BaseTrainer):
                     current_episode_result,
                     os.path.join(
                         self.config.INFO_DIR,
-                        "{}.infos.p".format(current_ckpt_filename.split(".pth")[0]),
+                        "{}.infos.p".format(
+                            current_ckpt_filename.split(".pth")[0]
+                        ),
                     ),
                 )
                 self._save_info_dict(
@@ -151,7 +161,10 @@ class BaseRLTrainer(BaseTrainer):
                     os.path.join(self.config.INFO_DIR, "eval_infos.p"),
                 )
 
-                if self.config.EVAL.SAVE_RANKED_IMGS and self.config.VO.use_vo_model:
+                if (
+                    self.config.EVAL.SAVE_RANKED_IMGS
+                    and self.config.VO.use_vo_model
+                ):
                     logger.info("Start post processing ...\n")
                     self._eval_ckpt_post_process(current_episode_result)
                     logger.info("... post processing done.\n")
@@ -181,35 +194,45 @@ class BaseRLTrainer(BaseTrainer):
                         act = ACT_IDX2NAME[step_info["action"]]
                         for i, d_type in enumerate(["dx", "dz", "dyaw"]):
                             step_info[f"{d_type}_abs"] = np.abs(
-                                step_info["gt_delta"][i] - step_info["pred_delta"][i]
+                                step_info["gt_delta"][i]
+                                - step_info["pred_delta"][i]
                             )
                             step_info[f"{d_type}_rel"] = np.abs(
-                                step_info["gt_delta"][i] - step_info["pred_delta"][i]
+                                step_info["gt_delta"][i]
+                                - step_info["pred_delta"][i]
                             ) / (np.abs(step_info["gt_delta"][i]) + EPSILON)
-                            delta_type_dict[d_type][act][f"abs"].append(step_info)
-                            delta_type_dict[d_type][act][f"rel"].append(step_info)
+                            delta_type_dict[d_type][act][f"abs"].append(
+                                step_info
+                            )
+                            delta_type_dict[d_type][act][f"rel"].append(
+                                step_info
+                            )
 
                     for d_type in ["dx", "dz", "dyaw"]:
                         for act in delta_type_dict[d_type]:
-                            ranked_list_abs = delta_type_dict[d_type][act][f"abs"]
+                            ranked_list_abs = delta_type_dict[d_type][act][
+                                f"abs"
+                            ]
                             ranked_list_abs = sorted(
                                 ranked_list_abs,
                                 key=lambda x: x[f"{d_type}_abs"],
                                 reverse=True,
                             )
-                            delta_type_dict[d_type][act]["abs"] = ranked_list_abs[
-                                :top_k
-                            ]
+                            delta_type_dict[d_type][act][
+                                "abs"
+                            ] = ranked_list_abs[:top_k]
 
-                            ranked_list_rel = delta_type_dict[d_type][act]["rel"]
+                            ranked_list_rel = delta_type_dict[d_type][act][
+                                "rel"
+                            ]
                             ranked_list_rel = sorted(
                                 ranked_list_rel,
                                 key=lambda x: x[f"{d_type}_rel"],
                                 reverse=True,
                             )
-                            delta_type_dict[d_type][act]["rel"] = ranked_list_rel[
-                                :top_k
-                            ]
+                            delta_type_dict[d_type][act][
+                                "rel"
+                            ] = ranked_list_rel[:top_k]
 
                 # plot figures
                 cur_scene = os.path.basename(k).split(".")[0]
@@ -231,7 +254,9 @@ class BaseRLTrainer(BaseTrainer):
                             os.makedirs(cur_d_dir, exist_ok=False)
 
                             for act in delta_type_dict[d_type]:
-                                ranked_list = delta_type_dict[d_type][act][compare_type]
+                                ranked_list = delta_type_dict[d_type][act][
+                                    compare_type
+                                ]
                                 assert len(ranked_list) == top_k
 
                                 for j, step_info in enumerate(ranked_list):
@@ -258,10 +283,12 @@ class BaseRLTrainer(BaseTrainer):
                                     prev_rgb = prev_obs["rgb"].astype(np.uint8)
                                     cur_rgb = cur_obs["rgb"].astype(np.uint8)
                                     prev_depth = (
-                                        np.repeat(prev_obs["depth"], 3, axis=2) * 255.0
+                                        np.repeat(prev_obs["depth"], 3, axis=2)
+                                        * 255.0
                                     ).astype(np.uint8)
                                     cur_depth = (
-                                        np.repeat(cur_obs["depth"], 3, axis=2) * 255.0
+                                        np.repeat(cur_obs["depth"], 3, axis=2)
+                                        * 255.0
                                     ).astype(np.uint8)
 
                                     # plot map
@@ -274,11 +301,16 @@ class BaseRLTrainer(BaseTrainer):
 
                                     # set layout of the image
                                     first_row = np.concatenate(
-                                        (prev_top_down_map, prev_rgb, prev_depth),
+                                        (
+                                            prev_top_down_map,
+                                            prev_rgb,
+                                            prev_depth,
+                                        ),
                                         axis=1,
                                     )
                                     second_row = np.concatenate(
-                                        (cur_top_down_map, cur_rgb, cur_depth), axis=1,
+                                        (cur_top_down_map, cur_rgb, cur_depth),
+                                        axis=1,
                                     )
                                     out_img = np.concatenate(
                                         (first_row, second_row), axis=0,
@@ -403,7 +435,9 @@ class BaseRLTrainer(BaseTrainer):
                 envs.pause_at(idx)
 
             # indexing along the batch dimensions
-            test_recurrent_hidden_states = test_recurrent_hidden_states[:, state_index]
+            test_recurrent_hidden_states = test_recurrent_hidden_states[
+                :, state_index
+            ]
             not_done_masks = not_done_masks[state_index]
             current_episode_reward = current_episode_reward[state_index]
             prev_actions = prev_actions[state_index]

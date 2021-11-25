@@ -23,7 +23,6 @@ from pointnav_vo.vo.common.common_vars import *
 from pointnav_vo.utils.rgb_sensor_degradations import apply_corruption_sequence
 
 
-
 class BaseRLTrainerWithVO(BaseRLTrainer):
     def _set_up_vo_obs_transformer(self) -> None:
 
@@ -63,7 +62,9 @@ class BaseRLTrainerWithVO(BaseRLTrainer):
                 model_names = ["all"]
             elif all_cfg.VO.REGRESS_MODEL.regress_type == "sep_act":
                 output_dim = 3
-                model_names = [_ for _ in list(ACT_IDX2NAME.values()) if _ != "unified"]
+                model_names = [
+                    _ for _ in list(ACT_IDX2NAME.values()) if _ != "unified"
+                ]
             else:
                 raise ValueError
 
@@ -94,7 +95,9 @@ class BaseRLTrainerWithVO(BaseRLTrainer):
                     )
 
                     if "model_state" in pretrained_ckpt:
-                        self.vo_model[k].load_state_dict(pretrained_ckpt["model_state"])
+                        self.vo_model[k].load_state_dict(
+                            pretrained_ckpt["model_state"]
+                        )
                     elif "model_states" in pretrained_ckpt:
                         self.vo_model[k].load_state_dict(
                             pretrained_ckpt["model_states"][ACT_NAME2IDX[k]]
@@ -132,7 +135,9 @@ class BaseRLTrainerWithVO(BaseRLTrainer):
                     **top_down_view_infos
                 )
 
-            logger.info(f"Visual Odometry model:\n{list(self.vo_model.values())[0]}")
+            logger.info(
+                f"Visual Odometry model:\n{list(self.vo_model.values())[0]}"
+            )
         else:
             raise ValueError("Incompatible choise of VO type.")
 
@@ -141,11 +146,19 @@ class BaseRLTrainerWithVO(BaseRLTrainer):
         assert torch.min(raw_depth) >= 0.0
 
         discretized_depth = torch.zeros(
-            (*raw_depth.shape, self.config.VO.REGRESS_MODEL.discretized_depth_channels)
+            (
+                *raw_depth.shape,
+                self.config.VO.REGRESS_MODEL.discretized_depth_channels,
+            )
         ).to(raw_depth.device)
 
-        for i in np.arange(self.config.VO.REGRESS_MODEL.discretized_depth_channels):
-            if i == self.config.VO.REGRESS_MODEL.discretized_depth_channels - 1:
+        for i in np.arange(
+            self.config.VO.REGRESS_MODEL.discretized_depth_channels
+        ):
+            if (
+                i
+                == self.config.VO.REGRESS_MODEL.discretized_depth_channels - 1
+            ):
                 # include the last end values
                 pos = torch.where(
                     (raw_depth >= self._discretized_depth_end_vals[i])
@@ -177,8 +190,12 @@ class BaseRLTrainerWithVO(BaseRLTrainer):
         cur_rgb = cur_obs["rgb"]
 
         # corruption
-        prev_rgb=apply_corruption_sequence(prev_rgb,self.corruptions_sequence,self.severity_sequence)
-        cur_rgb=apply_corruption_sequence(cur_rgb,self.corruptions_sequence,self.severity_sequence)
+        prev_rgb = apply_corruption_sequence(
+            prev_rgb, self.corruptions_sequence, self.severity_sequence
+        )
+        cur_rgb = apply_corruption_sequence(
+            cur_rgb, self.corruptions_sequence, self.severity_sequence
+        )
 
         # if zero?
         # prev_rgb = np.zeros_like(prev_rgb)
@@ -258,7 +275,8 @@ class BaseRLTrainerWithVO(BaseRLTrainer):
                         (prev_top_down_view, cur_top_down_view), dim=2,
                     ).unsqueeze(0)
                 elif isinstance(
-                    self._top_down_view_generator, NormalizedDepth2TopDownViewHabitat
+                    self._top_down_view_generator,
+                    NormalizedDepth2TopDownViewHabitat,
                 ):
                     prev_top_down_view = self._top_down_view_generator.gen_top_down_view(
                         depth_pair[0, :, :, 0, np.newaxis].cpu().numpy()
@@ -297,7 +315,9 @@ class BaseRLTrainerWithVO(BaseRLTrainer):
                 if self.config.VO.REGRESS_MODEL.mode == "det":
                     self.vo_model[tmp_key].eval()
                     if "act_embed" in self.config.VO.REGRESS_MODEL.name:
-                        actions = torch.Tensor([act]).long().to(rgb_pair.device)
+                        actions = (
+                            torch.Tensor([act]).long().to(rgb_pair.device)
+                        )
                         tmp_deltas = self.vo_model[tmp_key](obs_pairs, actions)
                     else:
                         tmp_deltas = self.vo_model[tmp_key](obs_pairs)
@@ -307,9 +327,13 @@ class BaseRLTrainerWithVO(BaseRLTrainer):
                 elif self.config.VO.REGRESS_MODEL.mode == "rnd":
                     self.vo_model[tmp_key].train()
                     tmp_all_local_delta_states = []
-                    for tmp_i in range(self.config.VO.REGRESS_MODEL.rnd_mode_n):
+                    for tmp_i in range(
+                        self.config.VO.REGRESS_MODEL.rnd_mode_n
+                    ):
                         tmp_deltas = (
-                            self.vo_model[tmp_key](obs_pairs).cpu().numpy()[0, :]
+                            self.vo_model[tmp_key](obs_pairs)
+                            .cpu()
+                            .numpy()[0, :]
                         )
                         tmp_all_local_delta_states.append(tmp_deltas)
                     local_delta_states = list(

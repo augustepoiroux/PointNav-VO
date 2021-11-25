@@ -36,10 +36,10 @@ python3 ${POINTNAV_VO_ROOT}/pointnav_vo/vo/dataset/generate_datasets.py \
 --obs_transform none \
 --act_type -1 \
 --rnd_p 1.0 \
---N_list 100 \
+--N_list 1000 \
 --corr_seq Spatter "Defocus Blur" \
 --sev_seq 1 1 \
---name_list train
+--name_list train_corr
 ```
 
 Argument explanation:
