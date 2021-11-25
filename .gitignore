@@ -134,8 +134,8 @@ dmypy.json
 .vscode
 
 # Datasets
-dataset/
-pretrained_ckpts/
+/dataset/
+/pretrained_ckpts/
 
 # Logs
 train_log/

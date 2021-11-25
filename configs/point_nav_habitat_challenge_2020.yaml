@@ -44,8 +44,8 @@ SIMULATOR:
     NOISE_MULTIPLIER: 0.5
 
   CORRUPTIONS:
-    CORRUPTIONS_SEQUENCE: ['Defocus Blur', 'Spatter']
-    SEVERITY_SEQUENCE: [0, 0]
+    CORRUPTIONS_SEQUENCE: ['DefocusBlur', 'Spatter']
+    SEVERITY_SEQUENCE: [1, 1]
 
 TASK:
   TYPE: Nav-v0

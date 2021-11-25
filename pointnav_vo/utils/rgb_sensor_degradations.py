@@ -280,8 +280,8 @@ def lighting(x, severity=1):
 import collections
 
 d = collections.OrderedDict()
-d["Defocus Blur"] = defocus_blur
-d["Motion Blur"] = motion_blur
+d["DefocusBlur"] = defocus_blur
+d["MotionBlur"] = motion_blur
 d["Lighting"] = lighting
 d["Speckle Noise"] = speckle_noise
 d["Spatter"] = spatter

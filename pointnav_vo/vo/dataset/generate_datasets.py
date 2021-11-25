@@ -577,7 +577,18 @@ def generate_datasets(
 ):
 
     for name, N in N_dict.items():
-        save_f = os.path.join(save_dir, f"{name}_{N_dict[name]}.h5")
+        filename = f"{name}_{N_dict[name]}"
+        if corruptions_sequence != []:
+            corr_str = "_".join(
+                [
+                    f"{corr}-{sev}"
+                    for corr, sev in zip(
+                        corruptions_sequence, severity_sequence
+                    )
+                ]
+            )
+            filename += f"_corr_{corr_str}"
+        save_f = os.path.join(save_dir, filename + ".h5")
         if name.startswith("train"):
             name = "train"
             scene_list = train_scene_list

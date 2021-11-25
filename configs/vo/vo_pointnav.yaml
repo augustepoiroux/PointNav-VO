@@ -92,10 +92,9 @@ VO:
     invariance_types: [] # choices: ["inverse_data_augment_only", "inverse_joint_train"]
 
   DATASET:
-    TRAIN_WITH_NOISE: dataset/vo_dataset/train_corr_10000.h5
-    # TRAIN_WITH_CORR: dataset/vo_dataset/train_corr_100.h5
-    EVAL_WITH_NOISE: dataset/vo_dataset/train_corr_100.h5
+    TRAIN_WITH_NOISE: dataset/vo_dataset/train_1000.h5
+    EVAL_WITH_NOISE: dataset/vo_dataset/train_1000.h5
 
     # use only 1 / PARTIAL_DATA_N_SPLITS data to train
     # so PARTIAL_DATA_N_SPLITS = 1 means we use all data
-    PARTIAL_DATA_N_SPLITS: 100
+    PARTIAL_DATA_N_SPLITS: 1
