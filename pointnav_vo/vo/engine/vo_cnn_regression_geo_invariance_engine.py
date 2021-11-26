@@ -37,7 +37,9 @@ TIMEOUT = 5 * 60
 DELTA_DIM = 3
 
 
-@baseline_registry.register_vo_engine(name="vo_cnn_regression_geo_invariance_engine")
+@baseline_registry.register_vo_engine(
+    name="vo_cnn_regression_geo_invariance_engine"
+)
 class VOCNNRegressionGeometricInvarianceEngine(VOCNNBaseEngine):
     @property
     def delta_types(self):
@@ -49,8 +51,12 @@ class VOCNNRegressionGeometricInvarianceEngine(VOCNNBaseEngine):
 
     def _set_up_model(self):
 
-        vo_model_cls = baseline_registry.get_vo_model(self.config.VO.MODEL.name)
-        assert vo_model_cls is not None, f"{self.config.VO.MODEL.name} is not supported"
+        vo_model_cls = baseline_registry.get_vo_model(
+            self.config.VO.MODEL.name
+        )
+        assert (
+            vo_model_cls is not None
+        ), f"{self.config.VO.MODEL.name} is not supported"
 
         self.vo_model = {}
         for act in self._act_list:
@@ -75,10 +81,14 @@ class VOCNNRegressionGeometricInvarianceEngine(VOCNNBaseEngine):
 
         if self._run_type == "train":
             if self.config.RESUME_TRAIN:
-                logger.info(f"Resume training from {self.config.RESUME_STATE_FILE}")
+                logger.info(
+                    f"Resume training from {self.config.RESUME_STATE_FILE}"
+                )
                 resume_ckpt = torch.load(self.config.RESUME_STATE_FILE)
                 for act in self._act_list:
-                    self.vo_model[act].load_state_dict(resume_ckpt["model_states"][act])
+                    self.vo_model[act].load_state_dict(
+                        resume_ckpt["model_states"][act]
+                    )
             elif self.config.VO.MODEL.pretrained:
                 for act in self._act_list:
                     act_str = ACT_IDX2NAME[act]
@@ -104,7 +114,9 @@ class VOCNNRegressionGeometricInvarianceEngine(VOCNNBaseEngine):
             logger.info(f"Eval {self.config.EVAL.EVAL_CKPT_PATH}")
             eval_ckpt = torch.load(self.config.EVAL.EVAL_CKPT_PATH)
             for act in self._act_list:
-                self.vo_model[act].load_state_dict(eval_ckpt["model_states"][act])
+                self.vo_model[act].load_state_dict(
+                    eval_ckpt["model_states"][act]
+                )
 
         if self.verbose:
             logger.info(self.vo_model[self._act_list[0]])
@@ -125,7 +137,10 @@ class VOCNNRegressionGeometricInvarianceEngine(VOCNNBaseEngine):
         for act in self._act_list:
             self.optimizer[act] = optim.Adam(
                 list(
-                    filter(lambda p: p.requires_grad, self.vo_model[act].parameters())
+                    filter(
+                        lambda p: p.requires_grad,
+                        self.vo_model[act].parameters(),
+                    )
                 ),
                 lr=self.config.VO.TRAIN.lr,
                 eps=self.config.VO.TRAIN.eps,
@@ -135,7 +150,9 @@ class VOCNNRegressionGeometricInvarianceEngine(VOCNNBaseEngine):
         if self.config.RESUME_TRAIN:
             resume_ckpt = torch.load(self.config.RESUME_STATE_FILE)
             for act in self._act_list:
-                self.optimizer[act].load_state_dict(resume_ckpt["optim_states"][act])
+                self.optimizer[act].load_state_dict(
+                    resume_ckpt["optim_states"][act]
+                )
 
     def _set_up_dataloader(self):
 
@@ -169,7 +186,9 @@ class VOCNNRegressionGeometricInvarianceEngine(VOCNNBaseEngine):
             self._discretized_depth_channels = 0
 
         if "top_down_view" in self._observation_space:
-            assert self.config.TASK_CONFIG.SIMULATOR.DEPTH_SENSOR.NORMALIZE_DEPTH
+            assert (
+                self.config.TASK_CONFIG.SIMULATOR.DEPTH_SENSOR.NORMALIZE_DEPTH
+            )
             gen_top_down_view = True
             top_down_view_infos = {
                 "min_depth": self.config.TASK_CONFIG.SIMULATOR.DEPTH_SENSOR.MIN_DEPTH,
@@ -223,7 +242,9 @@ class VOCNNRegressionGeometricInvarianceEngine(VOCNNBaseEngine):
 
         if self.eval_loader is None:
             if "EVAL_WITH_NOISE_OCC_ANT" in self.config.VO.DATASET:
-                data_file_occant = self.config.VO.DATASET.EVAL_WITH_NOISE_OCC_ANT
+                data_file_occant = (
+                    self.config.VO.DATASET.EVAL_WITH_NOISE_OCC_ANT
+                )
             else:
                 data_file_occant = None
             eval_dataset = StatePairRegressionDataset(
@@ -296,7 +317,9 @@ class VOCNNRegressionGeometricInvarianceEngine(VOCNNBaseEngine):
                 # rgb from dataloader has type uint8, we need to change it to FloatTensor
                 batch_pairs["rgb"] = torch.cat(
                     [
-                        _.float().to(self.device, non_blocking=self._pin_memory_flag)
+                        _.float().to(
+                            self.device, non_blocking=self._pin_memory_flag
+                        )
                         for _ in rgb_pairs
                     ],
                     dim=0,
@@ -313,7 +336,9 @@ class VOCNNRegressionGeometricInvarianceEngine(VOCNNBaseEngine):
                 # rgb from dataloader has type uint8, we need to change it to FloatTensor
                 batch_pairs["discretized_depth"] = torch.cat(
                     [
-                        _.float().to(self.device, non_blocking=self._pin_memory_flag)
+                        _.float().to(
+                            self.device, non_blocking=self._pin_memory_flag
+                        )
                         for _ in discretized_depth_pairs
                     ],
                     dim=0,
@@ -344,9 +369,9 @@ class VOCNNRegressionGeometricInvarianceEngine(VOCNNBaseEngine):
                     .to(self.device, non_blocking=self._pin_memory_flag)
                 )
             if "top_down_view" in self._observation_space:
-                batch_pairs["top_down_view"] = top_down_view_pairs[act_idxes, :].to(
-                    self.device, non_blocking=self._pin_memory_flag
-                )
+                batch_pairs["top_down_view"] = top_down_view_pairs[
+                    act_idxes, :
+                ].to(self.device, non_blocking=self._pin_memory_flag)
         else:
             raise ValueError
 
@@ -364,7 +389,9 @@ class VOCNNRegressionGeometricInvarianceEngine(VOCNNBaseEngine):
 
         return pred_delta_states
 
-    def _compute_geo_invariance_inverse_loss(self, deltas, actions, data_types):
+    def _compute_geo_invariance_inverse_loss(
+        self, deltas, actions, data_types
+    ):
         r"""IMPORTANT:
         This function assumes data_types has structure with alternative sequence of
         [cur_rel_to_prev_0, prev_rel_to_cur_0, cur_rel_to_prev_1, prev_rel_to_cur_1, ...]
@@ -446,7 +473,11 @@ class VOCNNRegressionGeometricInvarianceEngine(VOCNNBaseEngine):
 
         loss_geo_inverse = loss_geo_inverse_rot + loss_geo_inverse_pos
 
-        return loss_geo_inverse, abs_diff_geo_inverse_rot, abs_diff_geo_inverse_pos
+        return (
+            loss_geo_inverse,
+            abs_diff_geo_inverse_rot,
+            abs_diff_geo_inverse_pos,
+        )
 
     def _process_one_batch(
         self,
@@ -485,7 +516,9 @@ class VOCNNRegressionGeometricInvarianceEngine(VOCNNBaseEngine):
             # explicitly deepcopy and reduce reference count to let dataloader processes close
             rgb_pairs = [_.clone() for _ in raw_rgb_pairs]
             depth_pairs = [_.clone() for _ in raw_depth_pairs]
-            discretized_depth_pairs = [_.clone() for _ in raw_discretized_depth_pairs]
+            discretized_depth_pairs = [
+                _.clone() for _ in raw_discretized_depth_pairs
+            ]
             top_down_view_pairs = [_.clone() for _ in raw_top_down_view_pairs]
 
             del raw_rgb_pairs[:]
@@ -506,7 +539,7 @@ class VOCNNRegressionGeometricInvarianceEngine(VOCNNBaseEngine):
             raise ValueError
 
         # fmt: off
-         
+
         if "inverse_joint_train" in cur_geo_invariance_types:
             if train_flag:
                 # sanity check, the absolute diff should all be clost to zeros
@@ -517,7 +550,7 @@ class VOCNNRegressionGeometricInvarianceEngine(VOCNNBaseEngine):
                 all_gt_deltas = torch.cat(
                     (delta_xs, delta_zs, delta_yaws), dim=1
                 )
-                 
+
                 (
                     _,
                     debug_abs_diff_geo_inverse_rot,
@@ -573,7 +606,9 @@ class VOCNNRegressionGeometricInvarianceEngine(VOCNNBaseEngine):
             else:
                 act_idxes = torch.nonzero(actions == act, as_tuple=True)[0]
 
-            loss_weights_cur_act = {k: v[act_idxes] for k, v in loss_weights.items()}
+            loss_weights_cur_act = {
+                k: v[act_idxes] for k, v in loss_weights.items()
+            }
 
             # [N, 3]
             batch_pairs = self._transfer_batch(
@@ -593,7 +628,8 @@ class VOCNNRegressionGeometricInvarianceEngine(VOCNNBaseEngine):
                         (i, j)
                         for i, j in zip(
                             act_idxes.cpu().numpy(),
-                            len(idx_map_for_reorder) + np.arange(act_idxes.size(0)),
+                            len(idx_map_for_reorder)
+                            + np.arange(act_idxes.size(0)),
                         )
                     ]
                 )
@@ -651,7 +687,9 @@ class VOCNNRegressionGeometricInvarianceEngine(VOCNNBaseEngine):
                                 (
                                     chunk_idxs[act_idxes],
                                     entry_idxs[act_idxes],
-                                    pred_delta_states[act_idxes, :].detach().cpu(),
+                                    pred_delta_states[act_idxes, :]
+                                    .detach()
+                                    .cpu(),
                                 ),
                                 dim=1,
                             ).numpy()
@@ -692,7 +730,8 @@ class VOCNNRegressionGeometricInvarianceEngine(VOCNNBaseEngine):
                             data_types[act_idxes] == tmp_id, as_tuple=True,
                         )[0]
                         tmp_loss_weights = {
-                            k: v[tmp_idxes] for k, v in loss_weights_cur_act.items()
+                            k: v[tmp_idxes]
+                            for k, v in loss_weights_cur_act.items()
                         }
 
                         if save_pred and i == 0:
@@ -722,7 +761,9 @@ class VOCNNRegressionGeometricInvarianceEngine(VOCNNBaseEngine):
                                     (
                                         chunk_idxs[act_idxes][tmp_idxes],
                                         entry_idxs[act_idxes][tmp_idxes],
-                                        pred_delta_states[tmp_idxes, :].detach().cpu(),
+                                        pred_delta_states[tmp_idxes, :]
+                                        .detach()
+                                        .cpu(),
                                     ),
                                     dim=1,
                                 ).numpy()
@@ -778,7 +819,8 @@ class VOCNNRegressionGeometricInvarianceEngine(VOCNNBaseEngine):
                 dim=0,
             )
             valid_geo_inv_idxes = torch.nonzero(
-                (all_actions == TURN_LEFT) | (all_actions == TURN_RIGHT), as_tuple=True,
+                (all_actions == TURN_LEFT) | (all_actions == TURN_RIGHT),
+                as_tuple=True,
             )[0]
             (
                 loss_geo_inverse,
@@ -817,14 +859,20 @@ class VOCNNRegressionGeometricInvarianceEngine(VOCNNBaseEngine):
                 random.setstate(resume_ckpt["rnd_state"])
                 np.random.set_state(resume_ckpt["np_rnd_state"])
                 torch.set_rng_state(resume_ckpt["torch_rnd_state"])
-                torch.cuda.set_rng_state_all(resume_ckpt["torch_cuda_rnd_state"])
+                torch.cuda.set_rng_state_all(
+                    resume_ckpt["torch_cuda_rnd_state"]
+                )
 
-        nbatches = np.ceil(len(self.train_loader.dataset) / self._train_batch_size)
+        nbatches = np.ceil(
+            len(self.train_loader.dataset) / self._train_batch_size
+        )
 
         grad_info_dict = OrderedDict()
 
         with (
-            TensorboardWriter(self.config.TENSORBOARD_DIR, flush_secs=self.flush_secs)
+            TensorboardWriter(
+                self.config.TENSORBOARD_DIR, flush_secs=self.flush_secs
+            )
         ) as writer:
 
             for epoch in tqdm(range(start_epoch, self.config.VO.TRAIN.epochs)):
@@ -894,7 +942,10 @@ class VOCNNRegressionGeometricInvarianceEngine(VOCNNBaseEngine):
 
                             if self.config.VO.TRAIN.log_grad:
                                 self._log_grad(
-                                    writer, global_step, grad_info_dict, d_type=d_type
+                                    writer,
+                                    global_step,
+                                    grad_info_dict,
+                                    d_type=d_type,
                                 )
 
                             for act in self._act_list:
@@ -904,17 +955,22 @@ class VOCNNRegressionGeometricInvarianceEngine(VOCNNBaseEngine):
 
                             # NOTE
                             if batch_i == 10:
-                                self._obs_log_func(writer, global_step, batch_pairs)
+                                self._obs_log_func(
+                                    writer, global_step, batch_pairs
+                                )
 
                             writer.add_scalar(
-                                f"Objective/train", loss, global_step=global_step
+                                f"Objective/train",
+                                loss,
+                                global_step=global_step,
                             )
 
                             if batch_i == nbatches - 1:
                                 self._save_dict(
                                     {"train_objevtive": [loss.cpu().item()]},
                                     os.path.join(
-                                        self.config.INFO_DIR, f"train_objective_info.p"
+                                        self.config.INFO_DIR,
+                                        f"train_objective_info.p",
                                     ),
                                 )
 
@@ -966,7 +1022,10 @@ class VOCNNRegressionGeometricInvarianceEngine(VOCNNBaseEngine):
                                                 )
                                     # fmt: on
 
-                            if "inverse_joint_train" in self.geo_invariance_types:
+                            if (
+                                "inverse_joint_train"
+                                in self.geo_invariance_types
+                            ):
                                 self._geo_invariance_inverse_log_func(
                                     writer,
                                     "train",
@@ -1003,7 +1062,10 @@ class VOCNNRegressionGeometricInvarianceEngine(VOCNNBaseEngine):
                     split_name="eval_all",
                 )
                 # for the sitaution where train with ALL types of actions
-                if self._act_type == -1 and self.separate_eval_loaders is not None:
+                if (
+                    self._act_type == -1
+                    and self.separate_eval_loaders is not None
+                ):
                     for act in self.separate_eval_loaders:
                         self.eval(
                             eval_act=act,
@@ -1130,8 +1192,11 @@ class VOCNNRegressionGeometricInvarianceEngine(VOCNNBaseEngine):
 
                 target_size = len(eval_loader.dataset)
                 if self._act_type == -1 and eval_act == "no_specify":
-                    if ("inverse_joint_train" in eval_geo_invariance_types) or (
-                        "inverse_data_augment_only" in eval_geo_invariance_types
+                    if (
+                        "inverse_joint_train" in eval_geo_invariance_types
+                    ) or (
+                        "inverse_data_augment_only"
+                        in eval_geo_invariance_types
                     ):
                         target_size += eval_loader.dataset.act_left_right_len
                 else:
@@ -1147,8 +1212,11 @@ class VOCNNRegressionGeometricInvarianceEngine(VOCNNBaseEngine):
 
                 if save_pred:
                     for act in gt_deltas:
-                        if ("inverse_joint_train" in eval_geo_invariance_types) or (
-                            "inverse_data_augment_only" in eval_geo_invariance_types
+                        if (
+                            "inverse_joint_train" in eval_geo_invariance_types
+                        ) or (
+                            "inverse_data_augment_only"
+                            in eval_geo_invariance_types
                         ):
                             for tmp_id in gt_deltas[act]:
                                 gt_deltas[act][tmp_id] = np.concatenate(
@@ -1158,10 +1226,15 @@ class VOCNNRegressionGeometricInvarianceEngine(VOCNNBaseEngine):
                                     pred_deltas[act][tmp_id], axis=0
                                 )
                         else:
-                            gt_deltas[act] = np.concatenate(gt_deltas[act], axis=0)
-                            pred_deltas[act] = np.concatenate(pred_deltas[act], axis=0)
+                            gt_deltas[act] = np.concatenate(
+                                gt_deltas[act], axis=0
+                            )
+                            pred_deltas[act] = np.concatenate(
+                                pred_deltas[act], axis=0
+                            )
                     with open(
-                        os.path.join(self.config.LOG_DIR, f"delta_gt_pred.p"), "wb"
+                        os.path.join(self.config.LOG_DIR, f"delta_gt_pred.p"),
+                        "wb",
                     ) as f:
                         joblib.dump(
                             {"gt": dict(gt_deltas), "pred": dict(pred_deltas)},
@@ -1221,7 +1294,9 @@ class VOCNNRegressionGeometricInvarianceEngine(VOCNNBaseEngine):
                             (epoch, total_loss.cpu().item() / total_size)
                         ]
                     },
-                    os.path.join(self.config.INFO_DIR, f"eval_objective_info.p"),
+                    os.path.join(
+                        self.config.INFO_DIR, f"eval_objective_info.p"
+                    ),
                 )
 
                 for act in self._act_list:
@@ -1292,15 +1367,23 @@ class VOCNNRegressionGeometricInvarianceEngine(VOCNNBaseEngine):
                 relative_diffs[act].append(d_relative_diffs)
             else:
                 abs_diffs[act][data_type_name].append(d_abs_diffs)
-                target_magnitudes[act][data_type_name].append(d_target_magnitudes)
+                target_magnitudes[act][data_type_name].append(
+                    d_target_magnitudes
+                )
                 relative_diffs[act][data_type_name].append(d_relative_diffs)
         elif update == "sum":
             if data_type_name is None:
                 abs_diffs[act][d_type] += d_abs_diffs * sum_multiplier
-                target_magnitudes[act][d_type] += d_target_magnitudes * sum_multiplier
-                relative_diffs[act][d_type] += d_relative_diffs * sum_multiplier
+                target_magnitudes[act][d_type] += (
+                    d_target_magnitudes * sum_multiplier
+                )
+                relative_diffs[act][d_type] += (
+                    d_relative_diffs * sum_multiplier
+                )
             else:
-                abs_diffs[act][data_type_name][d_type] += d_abs_diffs * sum_multiplier
+                abs_diffs[act][data_type_name][d_type] += (
+                    d_abs_diffs * sum_multiplier
+                )
                 target_magnitudes[act][data_type_name][d_type] += (
                     d_target_magnitudes * sum_multiplier
                 )
@@ -1315,7 +1398,9 @@ class VOCNNRegressionGeometricInvarianceEngine(VOCNNBaseEngine):
             self.optimizer[self._act_list[0]].param_groups
         ):
             writer.add_scalar(
-                f"LR/group_{tmp_i}", param_group["lr"], global_step=global_step,
+                f"LR/group_{tmp_i}",
+                param_group["lr"],
+                global_step=global_step,
             )
 
     def _geo_invariance_inverse_log_func(
@@ -1358,7 +1443,9 @@ class VOCNNRegressionGeometricInvarianceEngine(VOCNNBaseEngine):
             abs_diff_geo_inverse_pos[1].item()
         )
 
-        save_f = os.path.join(self.config.INFO_DIR, f"{split}_invariance_info.p")
+        save_f = os.path.join(
+            self.config.INFO_DIR, f"{split}_invariance_info.p"
+        )
         self._save_dict(dict(info_dict), save_f)
 
     def _obs_log_func(
@@ -1401,7 +1488,10 @@ class VOCNNRegressionGeometricInvarianceEngine(VOCNNBaseEngine):
                 writer.add_image(
                     f"cur_obs/discretized_depth_{i}",
                     batch_pairs["discretized_depth"][
-                        0, :, :, self.config.VO.MODEL.discretized_depth_channels + i
+                        0,
+                        :,
+                        :,
+                        self.config.VO.MODEL.discretized_depth_channels + i,
                     ].cpu(),
                     global_step,
                     dataformats="HW",
@@ -1426,8 +1516,12 @@ class VOCNNRegressionGeometricInvarianceEngine(VOCNNBaseEngine):
         state = {
             "epoch": epoch,
             "config": self.config,
-            "model_states": {k: self.vo_model[k].state_dict() for k in self._act_list},
-            "optim_states": {k: self.optimizer[k].state_dict() for k in self._act_list},
+            "model_states": {
+                k: self.vo_model[k].state_dict() for k in self._act_list
+            },
+            "optim_states": {
+                k: self.optimizer[k].state_dict() for k in self._act_list
+            },
             "rnd_state": random.getstate(),
             "np_rnd_state": np.random.get_state(),
             "torch_rnd_state": torch.get_rng_state(),
@@ -1437,7 +1531,9 @@ class VOCNNRegressionGeometricInvarianceEngine(VOCNNBaseEngine):
         try:
             torch.save(
                 state,
-                os.path.join(self.config.CHECKPOINT_FOLDER, f"ckpt_epoch_{epoch}.pth"),
+                os.path.join(
+                    self.config.CHECKPOINT_FOLDER, f"ckpt_epoch_{epoch}.pth"
+                ),
             )
         except:
             import sys

@@ -37,7 +37,7 @@ VO:
     scheduler: 'none'
     eps: 1.0e-8
     batch_size: 128
-    epochs: 10
+    epochs: 25
     loss_weight_fixed: True
     loss_weight_multiplier: { 'dx': 1.0, 'dz': 1.0, 'dyaw': 1.0 }
     log_grad: False
@@ -50,7 +50,7 @@ VO:
     # - -1: unified model for all actions
     # - 1, 2, 3: separate model for specific action
     # - [2, 3]: jointly train turn_left and turn_right action
-    action_type: 1
+    action_type: 3
 
   EVAL:
     save_pred: True
@@ -76,12 +76,12 @@ VO:
     dropout_p: 0.2
 
     # set pretrained to True if you want to fine-tune some checkpoints
-    pretrained: False
+    pretrained: True
     pretrained_ckpt:
       {
-        'forward': 'ckpt_forward.pth',
-        'left': 'act_left.pth',
-        'right': 'act_right.pth',
+        'forward': 'pretrained_ckpts/vo/act_forward.pth',
+        'left': 'pretrained_ckpts/vo/act_left_right_inv_joint.pth',
+        'right': 'pretrained_ckpts/vo/act_left_right_inv_joint.pth',
       }
 
   REGRESSION:
@@ -92,7 +92,7 @@ VO:
     invariance_types: [] # choices: ["inverse_data_augment_only", "inverse_joint_train"]
 
   DATASET:
-    TRAIN_WITH_NOISE: dataset/vo_dataset/train_1000.h5
+    TRAIN_WITH_NOISE: dataset/vo_dataset/train_1000_corr_Spatter-3_DefocusBlur-3.h5
     EVAL_WITH_NOISE: dataset/vo_dataset/train_1000.h5
 
     # use only 1 / PARTIAL_DATA_N_SPLITS data to train

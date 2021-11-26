@@ -1,5 +1,3 @@
-PATH_REPO = "~/Documents/EPFL/Cours/Semestre_1/Visual_Intelligence/PointNav-VO"
-cd PATH_REPO
 export POINTNAV_VO_ROOT=$PWD
 
 export NUMBA_NUM_THREADS=1 && \

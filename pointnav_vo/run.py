@@ -58,10 +58,16 @@ def main():
         help="path to config yaml containing info about experiment",
     )
     parser.add_argument(
-        "--n-gpu", type=str, required=True, help="timestamp for current executing."
+        "--n-gpu",
+        type=str,
+        required=True,
+        help="timestamp for current executing.",
     )
     parser.add_argument(
-        "--cur-time", type=str, required=True, help="timestamp for current executing."
+        "--cur-time",
+        type=str,
+        required=True,
+        help="timestamp for current executing.",
     )
     parser.add_argument(
         "opts",
@@ -105,7 +111,9 @@ def run_exp(
 
     if task_type == "rl":
         rgb_noise = "NOISE_MODEL" in config.TASK_CONFIG.SIMULATOR.RGB_SENSOR
-        depth_noise = "NOISE_MODEL" in config.TASK_CONFIG.SIMULATOR.DEPTH_SENSOR
+        depth_noise = (
+            "NOISE_MODEL" in config.TASK_CONFIG.SIMULATOR.DEPTH_SENSOR
+        )
         action_noise = "NOISE_MODEL" in config.TASK_CONFIG.SIMULATOR
 
     if noise == 1:
@@ -160,10 +168,14 @@ def run_exp(
                     )
                 )
                 if config.RL.TUNE_WITH_VO:
-                    vo_pretrained_ckpt_type = config.VO.REGRESS_MODEL.pretrained_type
+                    vo_pretrained_ckpt_type = (
+                        config.VO.REGRESS_MODEL.pretrained_type
+                    )
             elif task_type == "vo":
                 if isinstance(config.VO.TRAIN.action_type, list):
-                    act_str = "_".join([str(_) for _ in config.VO.TRAIN.action_type])
+                    act_str = "_".join(
+                        [str(_) for _ in config.VO.TRAIN.action_type]
+                    )
                 else:
                     act_str = config.VO.TRAIN.action_type
                 log_folder_name = (
@@ -208,7 +220,9 @@ def run_exp(
                 )
             else:
                 pass
-            log_folder_name = f"seed_{config.TASK_CONFIG.SEED}-{log_folder_name}"
+            log_folder_name = (
+                f"seed_{config.TASK_CONFIG.SEED}-{log_folder_name}"
+            )
             log_dir = os.path.join(config.LOG_DIR, log_folder_name)
     elif "eval" in run_type:
         # save evaluation infos to the checkpoint's directory
@@ -233,10 +247,14 @@ def run_exp(
             ckpt_depth_noise = (
                 "NOISE_MODEL" in tmp_config.TASK_CONFIG.SIMULATOR.DEPTH_SENSOR
             )
-            ckpt_action_noise = "NOISE_MODEL" in tmp_config.TASK_CONFIG.SIMULATOR
+            ckpt_action_noise = (
+                "NOISE_MODEL" in tmp_config.TASK_CONFIG.SIMULATOR
+            )
             if config.VO.USE_VO_MODEL:
                 if config.VO.VO_TYPE == "REGRESS":
-                    vo_pretrained_ckpt_type = config.VO.REGRESS_MODEL.pretrained_type
+                    vo_pretrained_ckpt_type = (
+                        config.VO.REGRESS_MODEL.pretrained_type
+                    )
                 else:
                     raise ValueError
             log_dir = os.path.join(
@@ -289,9 +307,13 @@ def run_exp(
                 eval_f_list = [config.EVAL.EVAL_CKPT_PATH]
             else:
                 eval_f_list = list(
-                    glob.glob(os.path.join(config.EVAL.EVAL_CKPT_PATH, "*.pth"))
+                    glob.glob(
+                        os.path.join(config.EVAL.EVAL_CKPT_PATH, "*.pth")
+                    )
                 )
-                eval_f_list = sorted(eval_f_list, key=lambda x: os.stat(x).st_mtime)
+                eval_f_list = sorted(
+                    eval_f_list, key=lambda x: os.stat(x).st_mtime
+                )
             engine_name = torch.load(eval_f_list[0])["config"].ENGINE_NAME
         else:
             raise NotImplementedError
@@ -312,16 +334,22 @@ def run_exp(
         trainer.train()
     elif "eval" in run_type:
         if task_type == "vo":
-            for i, eval_f in tqdm(enumerate(eval_f_list), total=len(eval_f_list)):
+            for i, eval_f in tqdm(
+                enumerate(eval_f_list), total=len(eval_f_list)
+            ):
                 verbose = i == 0
                 config.defrost()
                 config.EVAL.EVAL_CKPT_PATH = eval_f
                 config.freeze()
-                trainer = trainer_init(config.clone(), run_type, verbose=verbose)
+                trainer = trainer_init(
+                    config.clone(), run_type, verbose=verbose
+                )
 
                 if config.EVAL.EVAL_WITH_CKPT:
                     ckpt_epoch = int(
-                        os.path.basename(eval_f).split("epoch_")[1].split(".")[0]
+                        os.path.basename(eval_f)
+                        .split("epoch_")[1]
+                        .split(".")[0]
                     )
                 else:
                     ckpt_epoch = 0
@@ -329,7 +357,9 @@ def run_exp(
                 for act in config.VO.EVAL.eval_acts:
                     trainer.eval(
                         eval_act=act,
-                        split_name=f"eval_{act}" if act != "no_specify" else "eval",
+                        split_name=f"eval_{act}"
+                        if act != "no_specify"
+                        else "eval",
                         epoch=ckpt_epoch,
                         save_pred=config.VO.EVAL.save_pred,
                         rank_pred=config.VO.EVAL.rank_pred,

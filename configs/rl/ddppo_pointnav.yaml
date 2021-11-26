@@ -123,6 +123,7 @@ VO:
     all_pretrained_ckpt: {
       "rgb_d_dd_top_down_inv_joint": {
         "forward": "pretrained_ckpts/vo/act_forward.pth",
+        "forward": "train_log/seed_1-vo-noise_1-train-rgb_d_dd_proj-dd_hard_10-m_cen_1-act_1-model_vo_cnn_rgb_d_dd_top_down-resnet18-geo__inv_w_1-l_mult_fix_1-1.0_1.0_1.0-dpout_0.2-e_10-b_128-lr_0.00025-w_de_0.0-20211126_100819737430/checkpoints/ckpt_epoch_10.pth",
         "left": "pretrained_ckpts/vo/act_left_right_inv_joint.pth",
         "right": "pretrained_ckpts/vo/act_left_right_inv_joint.pth",
       },
