@@ -422,7 +422,7 @@ def generate_one_dataset(
                 env, follower = create_new_env(
                     config_template, split_name, cur_scene, print_config_flag
                 )
-                print(f"Create environemnt for {cur_scene} successfully.\n")
+                print(f"Create environment for {cur_scene} successfully.\n")
                 if print_config_flag:
                     print_config_flag = False
 
