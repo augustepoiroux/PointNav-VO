@@ -1,0 +1,47 @@
+#!/bin/bash
+
+#SBATCH --chdir /home/guazhang/project
+#SBATCH --output /home/guazhang/project/%j.out
+#SBATCH --nodes 1
+
+#SBATCH --ntasks 1
+
+#SBATCH --cpus-per-task 1
+
+#SBATCH --mem 4096
+
+#SBATCH --time 12:00:00
+
+#SBATCH --account cs503
+
+#SBATCH --reservation courses
+
+#SBATCH --gres=gpu:1
+
+## next lines are comments (because of double ##), while the previous # were slurm parameters
+##SBATCH --cpus-per-task 40
+##SBATCH --mem 180G
+##SBATCH --gres gpu:2
+
+##SBATCH --time 1:00:00
+##SBATCH --partition build
+
+date
+
+###########################
+#        venv
+###########################
+
+# module load gcc/8.4.0-cuda python/3.7.7
+# module load py-torch/1.6.0-cuda-openmp py-torchvision/0.6.1
+conda activate pointnav-vo
+
+###########################
+#        python
+###########################
+
+# whatever script you want to run
+# bash -c ./scripts/train_lr_rate.sh
+# bash -c ./scripts/train_style.sh
+# python -u habitat_baselines/run.py --exp-config habitat_baselines/config/pointnav/ppo_pointnav_example.yaml --run-type eval
+bash -c ./eval_benchmark.sh
