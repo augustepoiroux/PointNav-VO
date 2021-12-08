@@ -14,6 +14,7 @@ import torchvision.datasets as dset
 import torchvision.transforms as trn
 import torch.utils.data as data
 import numpy as np
+from time import time
 
 from PIL import Image
 
@@ -274,15 +275,23 @@ def lighting(x, severity=1):
 
     return np.clip(x, 0, 1) * 255
 
-def crack(x,crack_mask_folder="./dataset_cracks/",mask_file="CFD_035.jpg",severity=1):
-    if severity<=0:
-        return x
+def crack(x,crack_mask_folder="./dataset_cracks/",default_mask_file="CFD_035.jpg",use_time=True,severity=3):
+
+    if use_time:
+        id_image= int((time()//100)%100)
+        mask_file="CFD_0{}.jpg".format(id_image)
     else:
-        mask=cv2.imread(crack_mask_folder+mask_file)
-        mask=cv2.resize(mask,(341,192))
-        mask=cv2.bitwise_not(mask)
-        masked_image = cv2.bitwise_and(x, mask)
-        return masked_image
+        mask_file=default_mask_file
+
+    mask=cv2.imread(crack_mask_folder+mask_file)
+    mask=cv2.resize(mask,(341,192))
+    mask=cv2.bitwise_not(mask)
+    masked_image = cv2.bitwise_and(x, mask)
+
+    alpha=float(severity)/5
+    transparency_masked_image=cv2.addWeighted(x,1-alpha,masked_image,alpha,0)
+
+    return transparency_masked_image
 
 
 
