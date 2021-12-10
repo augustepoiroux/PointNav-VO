@@ -274,18 +274,21 @@ def lighting(x, severity=1):
 
     return np.clip(x, 0, 1) * 255
 
-def crack(x,crack_mask_folder="./dataset_cracks/",mask_file="CFD_035.jpg",severity=1):
-    if severity<=0:
+
+def crack(
+    x,
+    crack_mask_folder="./dataset_cracks/",
+    mask_file="CFD_035.jpg",
+    severity=1,
+):
+    if severity <= 0:
         return x
     else:
-        mask=cv2.imread(crack_mask_folder+mask_file)
-        mask=cv2.resize(mask,(341,192))
-        mask=cv2.bitwise_not(mask)
+        mask = cv2.imread(crack_mask_folder + mask_file)
+        mask = cv2.resize(mask, (341, 192))
+        mask = cv2.bitwise_not(mask)
         masked_image = cv2.bitwise_and(x, mask)
         return masked_image
-
-
-
 
 
 # /////////////// End Distortions ///////////////
@@ -296,7 +299,7 @@ d = collections.OrderedDict()
 d["DefocusBlur"] = defocus_blur
 d["MotionBlur"] = motion_blur
 d["Lighting"] = lighting
-d["Speckle Noise"] = speckle_noise
+d["SpeckleNoise"] = speckle_noise
 d["Spatter"] = spatter
 d["Cracks"] = crack
 
@@ -304,7 +307,7 @@ d["Cracks"] = crack
 def apply_corruption(image, corruption, severity):
     if severity == 0:
         return image
-    corrupt = lambda clean_image: d[corruption](image, severity)
+    corrupt = lambda clean_image: d[corruption](clean_image, severity)
     corrupt_img = np.uint8(corrupt(image))
     return corrupt_img
 

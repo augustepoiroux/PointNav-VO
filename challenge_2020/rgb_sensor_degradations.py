@@ -283,7 +283,7 @@ d = collections.OrderedDict()
 d["DefocusBlur"] = defocus_blur
 d["MotionBlur"] = motion_blur
 d["Lighting"] = lighting
-d["Speckle Noise"] = speckle_noise
+d["SpeckleNoise"] = speckle_noise
 d["Spatter"] = spatter
 
 
