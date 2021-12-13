@@ -1,14 +1,11 @@
 #!/usr/bin/env python3
 
 import numpy as np
-from typing import ClassVar, Dict, List
-from collections import defaultdict, OrderedDict
+from collections import OrderedDict
 import cv2
-from PIL import Image
 
 import torch
 
-import habitat
 from habitat import Config, logger
 
 from pointnav_vo.rl.common.base_trainer import BaseRLTrainer
@@ -17,7 +14,6 @@ from pointnav_vo.utils.geometry_utils import (
     NormalizedDepth2TopDownViewHabitat,
     NormalizedDepth2TopDownViewHabitatTorch,
 )
-from pointnav_vo.utils.tensorboard_utils import TensorboardWriter
 from pointnav_vo.utils.misc_utils import ResizeCenterCropper, Resizer
 from pointnav_vo.vo.common.common_vars import *
 
@@ -191,12 +187,8 @@ class BaseRLTrainerWithVO(BaseRLTrainer):
         prev_rgb = prev_obs["rgb"]
         cur_rgb = cur_obs["rgb"]
 
-        pil_image=Image.fromarray(cur_rgb)
-        pil_image.save("pil_image.jpg")
-
-        cv2_image=np.array(cur_rgb)
-        cv2.imwrite("cv2_image.png",cv2_image)
-
+        cv2_image = np.array(cur_rgb)
+        cv2.imwrite("image.jpg", cv2_image)
 
         # corruption
         prev_rgb = apply_corruption_sequence(
@@ -205,6 +197,9 @@ class BaseRLTrainerWithVO(BaseRLTrainer):
         cur_rgb = apply_corruption_sequence(
             cur_rgb, self.corruptions_sequence, self.severity_sequence
         )
+
+        cv2_image = np.array(cur_rgb)
+        cv2.imwrite("image_corr.jpg", cv2_image)
 
         # if zero?
         # prev_rgb = np.zeros_like(prev_rgb)
