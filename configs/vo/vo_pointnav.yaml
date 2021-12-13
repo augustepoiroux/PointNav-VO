@@ -37,7 +37,7 @@ VO:
     scheduler: 'none'
     eps: 1.0e-8
     batch_size: 128
-    epochs: 25
+    epochs: 50
     loss_weight_fixed: True
     loss_weight_multiplier: { 'dx': 1.0, 'dz': 1.0, 'dyaw': 1.0 }
     log_grad: False
@@ -77,11 +77,13 @@ VO:
 
     # set pretrained to True if you want to fine-tune some checkpoints
     pretrained: True
-    pretrained_ckpt:
-      {
-        'forward': 'pretrained_ckpts/vo/act_forward.pth',
-        'left': 'pretrained_ckpts/vo/act_left_right_inv_joint.pth',
-        'right': 'pretrained_ckpts/vo/act_left_right_inv_joint.pth',
+    pretrained_ckpt: {
+        # 'forward': 'pretrained_ckpts/vo/act_forward.pth',
+        # 'left': 'pretrained_ckpts/vo/act_left_right_inv_joint.pth',
+        # 'right': 'pretrained_ckpts/vo/act_left_right_inv_joint.pth',
+        'forward': 'train_log/Spatter3/seed_1-vo-noise_1-train-rgb_d_dd_proj-dd_hard_10-m_cen_1-act_1-model_vo_cnn_rgb_d_dd_top_down-resnet18-geo__inv_w_1-l_mult_fix_1-1.0_1.0_1.0-dpout_0.2-e_50-b_128-lr_0.00025-w_de_0.0-20211211_142455758890/checkpoints/ckpt_epoch_50.pth',
+        'left': 'train_log/Spatter3/seed_1-vo-noise_1-train-rgb_d_dd_proj-dd_hard_10-m_cen_1-act_2-model_vo_cnn_rgb_d_dd_top_down-resnet18-geo__inv_w_1-l_mult_fix_1-1.0_1.0_1.0-dpout_0.2-e_50-b_128-lr_0.00025-w_de_0.0-20211211_162441843438/checkpoints/ckpt_epoch_50.pth',
+        'right': 'train_log/Spatter3/seed_1-vo-noise_1-train-rgb_d_dd_proj-dd_hard_10-m_cen_1-act_3-model_vo_cnn_rgb_d_dd_top_down-resnet18-geo__inv_w_1-l_mult_fix_1-1.0_1.0_1.0-dpout_0.2-e_50-b_128-lr_0.00025-w_de_0.0-20211211_155650153723/checkpoints/ckpt_epoch_50.pth',
       }
 
   REGRESSION:
@@ -92,7 +94,7 @@ VO:
     invariance_types: [] # choices: ["inverse_data_augment_only", "inverse_joint_train"]
 
   DATASET:
-    TRAIN_WITH_NOISE: dataset/vo_dataset/train_1000_corr_Spatter-3_DefocusBlur-3.h5
+    TRAIN_WITH_NOISE: dataset/vo_dataset/train_1000_corr_DefocusBlur-3.h5
     EVAL_WITH_NOISE: dataset/vo_dataset/train_1000.h5
 
     # use only 1 / PARTIAL_DATA_N_SPLITS data to train

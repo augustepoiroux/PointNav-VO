@@ -39,7 +39,7 @@ python3 ${POINTNAV_VO_ROOT}/pointnav_vo/vo/dataset/generate_datasets.py \
 --N_list 1000 \
 --name_list train \
 --corr_seq Spatter DefocusBlur \
---sev_seq 3 3 \
+--sev_seq 3 3
 ```
 
 Argument explanation:
