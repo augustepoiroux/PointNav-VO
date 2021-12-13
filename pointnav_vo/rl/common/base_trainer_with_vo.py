@@ -3,6 +3,8 @@
 import numpy as np
 from typing import ClassVar, Dict, List
 from collections import defaultdict, OrderedDict
+import cv2
+from PIL import Image
 
 import torch
 
@@ -188,6 +190,13 @@ class BaseRLTrainerWithVO(BaseRLTrainer):
     ):
         prev_rgb = prev_obs["rgb"]
         cur_rgb = cur_obs["rgb"]
+
+        pil_image=Image.fromarray(cur_rgb)
+        pil_image.save("pil_image.jpg")
+
+        cv2_image=np.array(cur_rgb)
+        cv2.imwrite("cv2_image.png",cv2_image)
+
 
         # corruption
         prev_rgb = apply_corruption_sequence(
