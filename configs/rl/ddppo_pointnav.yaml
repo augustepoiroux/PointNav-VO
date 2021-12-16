@@ -23,7 +23,7 @@ LOG_INTERVAL: 10
 # evaluation settings
 EVAL:
   SPLIT: val
-  TEST_EPISODE_COUNT: 10
+  TEST_EPISODE_COUNT: 30
   SAVE_RANKED_IMGS: False
   RANK_TOP_K: 1
   RESIZE_TOPDOWN_MAP: False
@@ -120,10 +120,10 @@ VO:
     pretrained: True
     pretrained_type: 'rgb_d_dd_top_down_inv_joint'
     all_pretrained_ckpt: { 'rgb_d_dd_top_down_inv_joint': {
-            'forward': 'pretrained_ckpts/vo/act_forward.pth',
-            'left': 'pretrained_ckpts/vo/act_left_right_inv_joint.pth',
-            'right': 'pretrained_ckpts/vo/act_left_right_inv_joint.pth',
-            # 'forward': 'train_log/seed_1-vo-noise_1-train-rgb_d_dd_proj-dd_hard_10-m_cen_1-act_1-model_vo_cnn_rgb_d_dd_top_down-resnet18-geo__inv_w_1-l_mult_fix_1-1.0_1.0_1.0-dpout_0.2-e_50-b_128-lr_0.00025-w_de_0.0-20211126_180950710768/checkpoints/ckpt_epoch_50.pth',
-            # 'right': 'train_log/seed_1-vo-noise_1-train-rgb_d_dd_proj-dd_hard_10-m_cen_1-act_3-model_vo_cnn_rgb_d_dd_top_down-resnet18-geo__inv_w_1-l_mult_fix_1-1.0_1.0_1.0-dpout_0.2-e_25-b_128-lr_0.00025-w_de_0.0-20211126_184902678332/checkpoints/ckpt_epoch_25.pth',
-            # 'left': 'train_log/seed_1-vo-noise_1-train-rgb_d_dd_proj-dd_hard_10-m_cen_1-act_2-model_vo_cnn_rgb_d_dd_top_down-resnet18-geo__inv_w_1-l_mult_fix_1-1.0_1.0_1.0-dpout_0.2-e_25-b_128-lr_0.00025-w_de_0.0-20211126_183847273784/checkpoints/ckpt_epoch_25.pth',
+            # 'forward': 'pretrained_ckpts/vo/act_forward.pth',
+            # 'left': 'pretrained_ckpts/vo/act_left_right_inv_joint.pth',
+            # 'right': 'pretrained_ckpts/vo/act_left_right_inv_joint.pth',
+            'forward': 'train_log/Spatter3-then-DefocusBlur3/seed_1-vo-noise_1-train-rgb_d_dd_proj-dd_hard_10-m_cen_1-act_1-model_vo_cnn_rgb_d_dd_top_down-resnet18-geo__inv_w_1-l_mult_fix_1-1.0_1.0_1.0-dpout_0.2-e_50-b_128-lr_0.00025-w_de_0.0-20211211_164533036294/checkpoints/ckpt_epoch_50.pth',
+            'left': 'train_log/Spatter3-then-DefocusBlur3/seed_1-vo-noise_1-train-rgb_d_dd_proj-dd_hard_10-m_cen_1-act_2-model_vo_cnn_rgb_d_dd_top_down-resnet18-geo__inv_w_1-l_mult_fix_1-1.0_1.0_1.0-dpout_0.2-e_50-b_128-lr_0.00025-w_de_0.0-20211211_171742501320/checkpoints/ckpt_epoch_50.pth',
+            'right': 'train_log/Spatter3-then-DefocusBlur3/seed_1-vo-noise_1-train-rgb_d_dd_proj-dd_hard_10-m_cen_1-act_3-model_vo_cnn_rgb_d_dd_top_down-resnet18-geo__inv_w_1-l_mult_fix_1-1.0_1.0_1.0-dpout_0.2-e_50-b_128-lr_0.00025-w_de_0.0-20211211_173618496212/checkpoints/ckpt_epoch_50.pth',
           } }

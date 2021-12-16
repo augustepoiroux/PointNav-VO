@@ -32,7 +32,7 @@ VO:
     # we use
     # - 2.5e-4 for training from the scratch
     # - 1.5e-4 for joint training left-right model with geometric invariance loss
-    lr: 2.5e-4
+    lr: 1.5e-4
     weight_decay: 0.0 # we do not use weight decay in our experiments
     scheduler: 'none'
     eps: 1.0e-8
@@ -50,7 +50,7 @@ VO:
     # - -1: unified model for all actions
     # - 1, 2, 3: separate model for specific action
     # - [2, 3]: jointly train turn_left and turn_right action
-    action_type: 3
+    action_type: [2, 3]
 
   EVAL:
     save_pred: True
@@ -81,9 +81,9 @@ VO:
         # 'forward': 'pretrained_ckpts/vo/act_forward.pth',
         # 'left': 'pretrained_ckpts/vo/act_left_right_inv_joint.pth',
         # 'right': 'pretrained_ckpts/vo/act_left_right_inv_joint.pth',
-        'forward': 'train_log/Spatter3/seed_1-vo-noise_1-train-rgb_d_dd_proj-dd_hard_10-m_cen_1-act_1-model_vo_cnn_rgb_d_dd_top_down-resnet18-geo__inv_w_1-l_mult_fix_1-1.0_1.0_1.0-dpout_0.2-e_50-b_128-lr_0.00025-w_de_0.0-20211211_142455758890/checkpoints/ckpt_epoch_50.pth',
-        'left': 'train_log/Spatter3/seed_1-vo-noise_1-train-rgb_d_dd_proj-dd_hard_10-m_cen_1-act_2-model_vo_cnn_rgb_d_dd_top_down-resnet18-geo__inv_w_1-l_mult_fix_1-1.0_1.0_1.0-dpout_0.2-e_50-b_128-lr_0.00025-w_de_0.0-20211211_162441843438/checkpoints/ckpt_epoch_50.pth',
-        'right': 'train_log/Spatter3/seed_1-vo-noise_1-train-rgb_d_dd_proj-dd_hard_10-m_cen_1-act_3-model_vo_cnn_rgb_d_dd_top_down-resnet18-geo__inv_w_1-l_mult_fix_1-1.0_1.0_1.0-dpout_0.2-e_50-b_128-lr_0.00025-w_de_0.0-20211211_155650153723/checkpoints/ckpt_epoch_50.pth',
+        'forward': 'train_log/Spatter3-DefocusBlur3/seed_1-vo-noise_1-train-rgb_d_dd_proj-dd_hard_10-m_cen_1-act_1-model_vo_cnn_rgb_d_dd_top_down-resnet18-geo__inv_w_1-l_mult_fix_1-1.0_1.0_1.0-dpout_0.2-e_50-b_128-lr_0.00025-w_de_0.0-20211126_180950710768/checkpoints/ckpt_epoch_50.pth',
+        'right': 'train_log/Spatter3-DefocusBlur3/seed_1-vo-noise_1-train-rgb_d_dd_proj-dd_hard_10-m_cen_1-act_3-model_vo_cnn_rgb_d_dd_top_down-resnet18-geo__inv_w_1-l_mult_fix_1-1.0_1.0_1.0-dpout_0.2-e_25-b_128-lr_0.00025-w_de_0.0-20211126_184902678332/checkpoints/ckpt_epoch_25.pth',
+        'left': 'train_log/Spatter3-DefocusBlur3/seed_1-vo-noise_1-train-rgb_d_dd_proj-dd_hard_10-m_cen_1-act_2-model_vo_cnn_rgb_d_dd_top_down-resnet18-geo__inv_w_1-l_mult_fix_1-1.0_1.0_1.0-dpout_0.2-e_25-b_128-lr_0.00025-w_de_0.0-20211126_183847273784/checkpoints/ckpt_epoch_25.pth',
       }
 
   REGRESSION:
@@ -91,7 +91,7 @@ VO:
 
   GEOMETRY:
     loss_inv_weight: 1
-    invariance_types: [] # choices: ["inverse_data_augment_only", "inverse_joint_train"]
+    invariance_types: ['inverse_joint_train'] # choices: ["inverse_data_augment_only", "inverse_joint_train"]
 
   DATASET:
     TRAIN_WITH_NOISE: dataset/vo_dataset/train_1000_corr_DefocusBlur-3.h5
