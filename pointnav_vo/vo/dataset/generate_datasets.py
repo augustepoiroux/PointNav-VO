@@ -19,7 +19,7 @@ from pointnav_vo.utils.geometry_utils import (
 from pointnav_vo.utils.misc_utils import ResizeCenterCropper, Resizer
 
 # corruption
-from pointnav_vo.utils.rgb_sensor_degradations import apply_corruption_sequence
+from pointnav_vo.utils.rgb_sensor_degradations import apply_corruption_sequence, apply_corruption_sequence_depth
 
 
 LOG_INTERVAL = 50
@@ -241,6 +241,8 @@ def generate_one_dataset(
     obs_transformer=None,
     corruptions_sequence=[],
     severity_sequence=[],
+    corruptions_sequence_depth=[],
+    severity_sequence_depth=[]
 ):
 
     print_config_flag = True
@@ -518,6 +520,12 @@ def generate_one_dataset(
                     cur_rgb, corruptions_sequence, severity_sequence
                 )
 
+                prev_depth= apply_corruption_sequence_depth(
+                    prev_depth, corruptions_sequence_depth, severity_sequence_depth
+                )
+                cur_depth= apply_corruption_sequence_depth(
+                    cur_depth, corruptions_sequence_depth, severity_sequence_depth
+                )
                 # all previous information
                 prev_rgbs.append(prev_rgb.reshape(-1))
                 prev_depths.append(prev_depth.reshape(-1))
@@ -574,6 +582,8 @@ def generate_datasets(
     obs_transformer=None,
     corruptions_sequence=[],
     severity_sequence=[],
+    corruptions_sequence_depth=[],
+    severity_sequence_depth=[],
 ):
 
     for name, N in N_dict.items():
@@ -588,6 +598,16 @@ def generate_datasets(
                 ]
             )
             filename += f"_corr_{corr_str}"
+        if corruptions_sequence_depth != []:
+            corr_str_depth = "_".join(
+                [
+                    f"{corr}-{sev}"+"_depth"
+                    for corr, sev in zip(
+                        corruptions_sequence_depth, severity_sequence_depth
+                    )
+                ]
+            )
+            filename += f"_corr_{corr_str_depth}"
         save_f = os.path.join(save_dir, filename + ".h5")
         if name.startswith("train"):
             name = "train"
@@ -615,6 +635,8 @@ def generate_datasets(
             obs_transformer=obs_transformer,
             corruptions_sequence=corruptions_sequence,
             severity_sequence=severity_sequence,
+            corruptions_sequence_depth=corruptions_sequence_depth,
+            severity_sequence_depth=severity_sequence_depth,
         )
         print("\n...done.\n")
 
@@ -713,6 +735,22 @@ def main():
         default=[],
         help="Which severity to use for each corruption given in corruption sequence argument.",
     )
+    parser.add_argument(
+        "--corr_seq_depth",
+        type=str,
+        nargs="*",
+        required=False,
+        default=[],
+        help="Which corruptions to apply for the depth sensor.",
+    )
+    parser.add_argument(
+        "--sev_seq_depth",
+        type=int,
+        nargs="*",
+        required=False,
+        default=[],
+        help="Which severity to use for each corruption given in depth corruption sequence argument.",
+    )
 
     args = parser.parse_args()
 
@@ -784,6 +822,8 @@ def main():
         obs_transformer=obs_transformer,
         corruptions_sequence=args.corr_seq,
         severity_sequence=args.sev_seq,
+        corruptions_sequence_depth=args.corr_seq_depth,
+        severity_sequence_depth=args.sev_seq_depth,
     )
 
 
