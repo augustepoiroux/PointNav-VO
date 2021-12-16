@@ -72,6 +72,12 @@ class BaseRLTrainer(BaseTrainer):
         self.severity_sequence = (
             config.TASK_CONFIG.SIMULATOR.CORRUPTIONS.SEVERITY_SEQUENCE
         )
+        self.corruptions_sequence_depth= (
+            config.TASK_CONFIG.SIMULATOR.CORRUPTIONS.CORRUPTIONS_SEQUENCE_DEPTH
+        )
+        self.severity_sequence_depth = (
+            config.TASK_CONFIG.SIMULATOR.CORRUPTIONS.SEVERITY_SEQUENCE_DEPTH
+        )
 
     @property
     def flush_secs(self):

@@ -18,7 +18,7 @@ from pointnav_vo.utils.misc_utils import ResizeCenterCropper, Resizer
 from pointnav_vo.vo.common.common_vars import *
 
 # corruption
-from pointnav_vo.utils.rgb_sensor_degradations import apply_corruption_sequence
+from pointnav_vo.utils.rgb_sensor_degradations import apply_corruption_sequence, apply_corruption_sequence_depth
 
 
 class BaseRLTrainerWithVO(BaseRLTrainer):
@@ -216,6 +216,17 @@ class BaseRLTrainerWithVO(BaseRLTrainer):
         # [vis_size, vis_size, 1]
         prev_depth = prev_obs["depth"]
         cur_depth = cur_obs["depth"]
+
+        prev_depth = apply_corruption_sequence_depth(
+            prev_depth, self.corruptions_sequence_depth, self.severity_sequence_depth
+        )
+        cur_depth = apply_corruption_sequence_depth(
+            cur_depth, self.corruptions_sequence_depth, self.severity_sequence_depth
+        )
+
+
+        with open("depth.npy","wb") as f:
+            np.save(f,cur_depth)
 
         depth_pair = torch.cat(
             [

@@ -277,20 +277,25 @@ def lighting(x, severity=1):
 
 
 def crack(
-    x,
+    x,severity=3,
     crack_mask_folder="./dataset_cracks/",
     default_mask_file="CFD_035.jpg",
-    use_time=True,
-    severity=3,
+    use_time=True
+    
 ):
 
     if use_time:
         id_image = int((time() // 100) % 100)
-        mask_file = "CFD_0{}.jpg".format(id_image)
+        if id_image>9:
+            mask_file = "CFD_0{}.jpg".format(id_image)
+        else:
+            mask_file = "CFD_00{}.jpg".format(id_image)
     else:
         mask_file = default_mask_file
-
+    x = np.array(x)
+    
     mask = cv2.imread(crack_mask_folder + mask_file)
+
     mask = cv2.resize(mask, (341, 192))
     mask = cv2.bitwise_not(mask)
     masked_image = cv2.bitwise_and(x, mask)
@@ -301,6 +306,66 @@ def crack(
     )
 
     return transparency_masked_image
+
+
+#///// Corruptions for depth sensor
+
+def crack_depth(
+    x,severity=3,
+    crack_mask_folder="./dataset_cracks/",
+    default_mask_file="CFD_035.jpg",
+    use_time=True
+    
+):
+
+    if use_time:
+        id_image = int((time() // 100) % 100)
+        if id_image>9:
+            mask_file = "CFD_0{}.jpg".format(id_image)
+        else:
+            mask_file = "CFD_00{}.jpg".format(id_image)
+    else:
+        mask_file = default_mask_file
+    x = np.array(x)
+    max_depth=np.max(x)
+    cur_depth=(x *255.0/max_depth).astype("uint8")
+    cur_depth=np.repeat(cur_depth,3,axis=2)
+
+    
+    mask = cv2.imread(crack_mask_folder + mask_file)
+
+    mask = cv2.resize(mask, (341, 192))
+    mask = cv2.bitwise_not(mask)
+    masked_image = cv2.bitwise_and(cur_depth, mask)
+
+    alpha = float(severity) / 5
+    transparency_masked_image = cv2.addWeighted(
+        cur_depth, 1 - alpha, masked_image, alpha, 0
+    )
+
+    transparency_masked_image=transparency_masked_image[:,:,0][:,:,np.newaxis]*max_depth/255.0
+
+    return transparency_masked_image
+
+def defocus_blur_depth(x, severity=1):
+    c = [(3, 0.1), (4, 0.5), (6, 0.5), (8, 0.5), (10, 0.5)][severity - 1]
+
+    x = np.array(x)
+    max_depth=np.max(x)
+    cur_depth=(x/max_depth)
+    cur_depth=np.repeat(cur_depth,3,axis=2)
+    kernel = disk(radius=c[0], alias_blur=c[1])
+
+    channels = []
+    for d in range(3):
+        channels.append(cv2.filter2D(cur_depth[:, :, d], -1, kernel))
+    channels = np.array(channels).transpose(
+        (1, 2, 0)
+    )  # 3x224x224 -> 224x224x3
+
+    blured_depth= np.clip(channels, 0, 1) * 255
+    blured_depth=blured_depth[:,:,0][:,:,np.newaxis]*max_depth/255.0
+    return blured_depth
 
 
 # /////////////// End Distortions ///////////////
@@ -316,6 +381,12 @@ d["Spatter"] = spatter
 d["Cracks"] = crack
 
 
+
+d_depth = collections.OrderedDict()
+d_depth["DefocusBlur"] = defocus_blur_depth
+d_depth["Cracks"] = crack_depth
+
+
 def apply_corruption(image, corruption, severity):
     if severity == 0:
         return image
@@ -329,6 +400,20 @@ def apply_corruption_sequence(frame, corruptions, severities):
     for corr, sev in zip(corruptions, severities):
         image = apply_corruption(image, corr, sev)
     return np.array(image)
+
+def apply_corruption_depth(depth_image, corruption, severity):
+    if severity == 0:
+        return depth_image
+    corrupt = lambda clean_image: d_depth[corruption](clean_image, severity)
+    corrupt_img = np.array(corrupt(depth_image))
+    return corrupt_img
+
+
+def apply_corruption_sequence_depth(depth_frame, corruptions, severities):
+    depth_image = np.array(depth_frame)
+    for corr, sev in zip(corruptions, severities):
+        depth_image = apply_corruption_depth(depth_image, corr, sev)
+    return np.array(depth_image)
 
 
 def _rotate_single_with_label(x, label):
