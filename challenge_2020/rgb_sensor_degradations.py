@@ -1,6 +1,6 @@
 """Script that houses implementations of visual corruptions
 
-Built on top of : https://github.com/hendrycks/robustness/blob/master/ImageNet-C/imagenet_c/imagenet_c/corruptions.py
+Built on top of : https://github.com/hendrycks/robustness/blob/master/ImageNet-C/imagenet_c/imagenet_c/corruptions.py and https://github.com/allenai/robustnav/blob/main/allenact/base_abstractions/rgb_sensor_degradations.py
 """
 # -*- coding: utf-8 -*-
 
