@@ -1,4 +1,0 @@
-- Display corrupted pictures (in order to evaluate the loss of information)
-- Train VO part on corrupted pictures
-  - [] see TRAIN.md
-  - [x] generate corrupted dataset

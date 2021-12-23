@@ -36,7 +36,7 @@ python3 ${POINTNAV_VO_ROOT}/pointnav_vo/vo/dataset/generate_datasets.py \
 --obs_transform none \
 --act_type -1 \
 --rnd_p 1.0 \
---N_list 1000 \
+--N_list 100 \
 --name_list train \
 --corr_seq Spatter DefocusBlur \
 --sev_seq 3 3
@@ -56,7 +56,7 @@ Argument explanation:
 | `--obs_transform`   | Type of observation transformer, `none` for no transformation            |
 | `--act_type`        | Type of actions to be saved, `-1` for saving all actions                 |
 | `--rnd_p`           | Bernoulli probability, default is `1.0`, namely saving all steps         |
-| `--N_list`          | Sizes for train and validation dataset. Paper uses `1000000` and `50000` |
+| `--N_list`          | Sizes for train and validation dataset. Paper uses `1000` |
 | `--name_list`       | Names for train and validation dataset, default is `train` and `val`     |
 
 ### VO Model Training

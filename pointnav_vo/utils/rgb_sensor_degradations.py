@@ -1,6 +1,6 @@
 """Script that houses implementations of visual corruptions
 
-Built on top of : https://github.com/hendrycks/robustness/blob/master/ImageNet-C/imagenet_c/imagenet_c/corruptions.py
+Built on top of : https://github.com/hendrycks/robustness/blob/master/ImageNet-C/imagenet_c/imagenet_c/corruptions.py and 
 """
 # -*- coding: utf-8 -*-
 

@@ -6,15 +6,7 @@ Xiaoming Zhao, Harsh Agrawal, Dhruv Batra, and Alexander Schwing. The Surprising
 
 Link: https://github.com/Xiaoming-Zhao/PointNav-VO
 
-[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
-<p align="center">The Surprising Effectiveness of Visual Odometry Techniques for Embodied PointGoal Navigation</p>
-
-<p align="center"><b><a href="https://xiaoming-zhao.github.io/projects/pointnav-vo/">Project Page</a> | <a href="https://arxiv.org/abs/2108.11550">Paper</a></b></p>
-
-<p align="center">
-  <img width="100%" src="media/nav.gif"/>
-</p>
 
 ## Setup
 
@@ -67,8 +59,10 @@ Please follow [Habitat's instruction](https://github.com/facebookresearch/habita
 |  |  |  |  |  +-- valmini
 ```
 
+
 ## Reproduce
 
+Models from the Original Visual Odometry Paper:
 Download pretrained checkpoints of RL navigation policy and VO from [this link](https://drive.google.com/drive/folders/1HG_d-PydxBBiDSnqG_GXAuG78Iq3uGdr?usp=sharing). Put them under `pretrained_ckpts` with the following structure:
 
 ```
@@ -84,9 +78,26 @@ Download pretrained checkpoints of RL navigation policy and VO from [this link](
 |  |  +-- act_left_right_inv_joint.pth
 ```
 
+
+Our models against corruptions:
+Download pretrained checkpoints of our finetuned models against corruptions [this link](https://drive.google.com/drive/folders/1JDcofwFntbBytwevobPvkVk9RK3ytUQn) under the train_log folder. Put them under `train_logs` and the corresponding subfolder. (It's not necessary to download them all! Download just the models corresponding to the value of pretrained_ckpt in the yaml files.)
+
+
 ### RL evaluation procedure
 
 Parameters for the evaluation procedures can be found in `configs/point_nav_habitat_challenge_2020.yaml` and `configs/rl/ddppo_pointnav.yaml`.
+To modify the corruptions, change the following values in `configs/point_nav_habitat_challenge_2020.yaml`
+```
+  CORRUPTIONS:
+    CORRUPTIONS_SEQUENCE: ['Spatter']
+    SEVERITY_SEQUENCE: [3]
+    CORRUPTIONS_SEQUENCE_DEPTH: []
+    SEVERITY_SEQUENCE_DEPTH: []
+```
+The possible values for CORRUPTIONS_SEQUENCE (RGB sensor) are "DefocusBlur", "Spatter", "Lighting", "Cracks", "MotionBlur" and "SpeckleNoise". The possible values for CORRUPTIONS_SEQUENCE_DEPTH (Depth sensor) are "DefocusBlur","Cracks". SEVERITY_SEQUENCE must have the same length as CORRUPTIONS_SEQUENCE.
+
+
+
 Then you can run the following command to evaluate the policy:
 
 ```bash
@@ -108,7 +119,7 @@ python ${POINTNAV_VO_ROOT}/launch.py \
 
 ### Dataset Generation for VO training
 
-We need to generate dataset for training visual odometry model. Please make sure your disk space is enough for the generated data. With 1 million data entries, it takes about **460 GB**.
+We need to generate dataset for training visual odometry model. Please make sure your disk space is enough for the generated data. With 1 million data entries, it takes about **460 GB**. The code below generates 1000 data entries.
 
 ```bash
 cd ${POINTNAV_VO_ROOT}
